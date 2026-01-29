@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y nginx && apt-get clean
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Espone la porta
-EXPOSE 80
+EXPOSE 8501
 
 # Avvia Nginx + Streamlit
 CMD service nginx start && streamlit run app.py --server.port=8501 --server.address=0.0.0.0
