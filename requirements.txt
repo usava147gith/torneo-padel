@@ -1,4 +1,4 @@
 streamlit
 pandas
 xlsxwriter
-ortools
+ortools==9.8.3296
