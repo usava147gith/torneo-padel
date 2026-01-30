@@ -19,10 +19,13 @@ with open("styles.css") as f:
 # PWA: manifest + service worker
 # ---------------------------------------------------------
 st.markdown("""
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="manifest.json">
+
 <script>
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js');
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register("service-worker.js");
+    });
 }
 </script>
 """, unsafe_allow_html=True)
@@ -41,6 +44,7 @@ st.markdown("""
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    transition: opacity 0.4s ease;
 ">
     <div class="spinner"></div>
 </div>
@@ -62,12 +66,16 @@ st.markdown("""
 </style>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+window.addEventListener("load", function() {
     const loader = document.getElementById('loader');
-    if (loader) loader.style.display = 'none';
+    if (loader) {
+        loader.style.opacity = 0;
+        setTimeout(() => loader.remove(), 400);
+    }
 });
 </script>
 """, unsafe_allow_html=True)
+
 
 
 # ---------------------------------------------------------
@@ -77,6 +85,7 @@ if "onboarding_done" not in st.session_state:
     st.session_state.onboarding_done = False
 
 if not st.session_state.onboarding_done:
+
     st.markdown("""
     <div class="fade-in" style="
         background: white;
@@ -95,9 +104,11 @@ if not st.session_state.onboarding_done:
     </div>
     """, unsafe_allow_html=True)
 
-if st.button("Inizia"):
-    st.session_state.onboarding_done = True
-    st.rerun()
+    if st.button("Inizia"):
+        st.session_state.onboarding_done = True
+        st.rerun()
+
+    st.stop()
 
 
 # ---------------------------------------------------------
