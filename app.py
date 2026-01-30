@@ -10,51 +10,6 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# LOADER COMPATIBILE RENDER (NON BLOCCA STREAMLIT)
-# ---------------------------------------------------------
-st.markdown("""
-<style>
-#loader {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    opacity: 1;
-    transition: opacity 0.3s ease;
-}
-.spinner {
-  border: 4px solid #E5E5EA;
-  border-top: 4px solid #34C759;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
-
-<div id="loader"><div class="spinner"></div></div>
-
-<script>
-window.addEventListener("load", function() {
-    const loader = document.getElementById("loader");
-    if (loader) {
-        loader.style.opacity = 0;
-        setTimeout(() => loader.remove(), 300);
-    }
-});
-</script>
-""", unsafe_allow_html=True)
-
-
-# ---------------------------------------------------------
 # ONBOARDING INIZIALE (VERSIONE SICURA)
 # ---------------------------------------------------------
 if "onboarding_done" not in st.session_state:
@@ -136,7 +91,7 @@ scelta = st.sidebar.radio(
 
 
 st.sidebar.markdown("---")
-st.sidebar.info("Creato da UgoSavarese")
+st.sidebar.info("V1.0 by UgoSavarese")
 
 # ---------------------------------------------------------
 # HOME PAGE (con griglia mobile 2×2)
