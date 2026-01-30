@@ -80,14 +80,16 @@ st.sidebar.title("🎾 Tornei Padel")
 st.sidebar.markdown("Seleziona il tipo di torneo")
 
 scelta = st.sidebar.radio(
-    "",
+    "Seleziona un torneo",
     [
         "Torneo a squadre",
         "Draft 12 giocatori",
         "Draft 16 giocatori",
         "Draft misto 16 giocatori"
-    ]
+    ],
+    label_visibility="collapsed"
 )
+
 
 st.sidebar.markdown("---")
 st.sidebar.info("Creato da UgoSavarese")
