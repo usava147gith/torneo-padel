@@ -41,6 +41,18 @@ if not st.session_state.onboarding_done:
 
     st.stop()
 
+st.markdown("""
+<link rel="manifest" href="manifest.json">
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register("service-worker.js");
+    });
+}
+</script>
+""", unsafe_allow_html=True)
+
 # ---------------------------------------------------------
 # CSS ESTERNO (styles.css)
 # ---------------------------------------------------------
