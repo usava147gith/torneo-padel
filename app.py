@@ -9,50 +9,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---------------------------------------------------------
-# LOADER ANIMATO (SAFE MODE)
-# ---------------------------------------------------------
-st.markdown("""
-<div id="loader" style="
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-    transition: opacity 0.3s ease;
-">
-    <div class="spinner"></div>
-</div>
-
-<style>
-.spinner {
-  border: 4px solid #E5E5EA;
-  border-top: 4px solid #34C759;
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-</style>
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = 0;
-        setTimeout(() => loader.remove(), 300);
-    }
-});
-</script>
-""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # ONBOARDING INIZIALE (VERSIONE SICURA)
@@ -194,3 +150,48 @@ elif scelta == "Draft 16 giocatori":
 
 elif scelta == "Draft misto 16 giocatori":
     run_draft16_misto()
+
+# ---------------------------------------------------------
+# LOADER ANIMATO (SAFE MODE) - POSIZIONATO A FINE FILE
+# ---------------------------------------------------------
+st.markdown("""
+<div id="loader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    transition: opacity 0.3s ease;
+">
+    <div class="spinner"></div>
+</div>
+
+<style>
+.spinner {
+  border: 4px solid #E5E5EA;
+  border-top: 4px solid #34C759;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.opacity = 0;
+        setTimeout(() => loader.remove(), 300);
+    }
+});
+</script>
+""", unsafe_allow_html=True)
