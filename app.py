@@ -72,35 +72,35 @@ window.addEventListener('load', function() {
 # ---------------------------------------------------------
 # ONBOARDING INIZIALE
 # ---------------------------------------------------------
-if "onboarding_done" not in st.session_state:
-    st.session_state.onboarding_done = False
+#if "onboarding_done" not in st.session_state:
+#   st.session_state.onboarding_done = False
 
-if not st.session_state.onboarding_done:
-    st.markdown("""
-    <div class="fade-in" style="
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: white;
-        z-index: 9998;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 2rem;
-    ">
-        <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
-        <h1 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h1>
-        <p style="font-size: 17px; color: #6E6E73; max-width: 300px;">
-            Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+#if not st.session_state.onboarding_done:
+#    st.markdown("""
+    # <div class="fade-in" style="
+        # position: fixed;
+        # top: 0; left: 0;
+        # width: 100%; height: 100%;
+        # background: white;
+        # z-index: 9998;
+        # display: flex;
+        # flex-direction: column;
+        # align-items: center;
+        # justify-content: center;
+        # text-align: center;
+        # padding: 2rem;
+    # ">
+        # <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
+        # <h1 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h1>
+        # <p style="font-size: 17px; color: #6E6E73; max-width: 300px;">
+            # Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
+        # </p>
+    # </div>
+    # """, unsafe_allow_html=True)
 
-    if st.button("Inizia"):
-        st.session_state.onboarding_done = True
-        st.rerun()
+#    if st.button("Inizia"):
+#        st.session_state.onboarding_done = True
+#        st.rerun()
 
 # ---------------------------------------------------------
 # IMPORT FUNZIONI TORNEI
