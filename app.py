@@ -34,20 +34,20 @@ if ('serviceWorker' in navigator) {
 # ---------------------------------------------------------
 # LOADER ANIMATO (iOS style) - VERSIONE SICURA
 # ---------------------------------------------------------
-# st.markdown("""
-# <div id="loader" style="
-    # position: fixed;
-    # top: 0; left: 0;
-    # width: 100%; height: 100%;
-    # background: white;
-    # display: flex;
-    # align-items: center;
-    # justify-content: center;
-    # z-index: 9999;
-    # transition: opacity 0.4s ease;
-# ">
-    # <div class="spinner"></div>
-# </div>
+st.markdown("""
+<div id="loader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.4s ease;
+">
+    <div class="spinner"></div>
+</div>
 
 <style>
 .spinner {
@@ -75,6 +75,9 @@ window.addEventListener("load", function() {
 });
 </script>
 """, unsafe_allow_html=True)
+
+
+
 
 
 
