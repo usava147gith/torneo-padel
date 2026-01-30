@@ -8,7 +8,30 @@ st.set_page_config(
     page_icon="🎾",
     layout="wide"
 )
+# 🔥 PWA
+st.markdown("""
+<link rel="manifest" href="manifest.json">
 
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register("service-worker.js");
+    });
+}
+</script>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<link rel="manifest" href="manifest.json">
+
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register("service-worker.js");
+    });
+}
+</script>
+""", unsafe_allow_html=True)
 # ---------------------------------------------------------
 # ONBOARDING INIZIALE (VERSIONE SICURA)
 # ---------------------------------------------------------
@@ -41,28 +64,12 @@ if not st.session_state.onboarding_done:
 
     st.stop()
 
-st.markdown("""
-<link rel="manifest" href="manifest.json">
-
-<script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register("service-worker.js");
-    });
-}
-</script>
-""", unsafe_allow_html=True)
-
 # ---------------------------------------------------------
 # CSS ESTERNO (styles.css)
 # ---------------------------------------------------------
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# DEBUG
-# ---------------------------------------------------------
-st.write("SAFE MODE ATTIVO — Loader e PWA disattivati")
 
 # ---------------------------------------------------------
 # IMPORT FUNZIONI TORNEI
