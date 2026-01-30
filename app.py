@@ -10,6 +10,38 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
+# ONBOARDING INIZIALE (VERSIONE SICURA)
+# ---------------------------------------------------------
+if "onboarding_done" not in st.session_state:
+    st.session_state.onboarding_done = False
+
+if not st.session_state.onboarding_done:
+
+    st.markdown("""
+    <div class="fade-in" style="
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 400px;
+        margin: 4rem auto;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+    ">
+        <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
+        <h2 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h2>
+        <p style="font-size: 17px; color: #6E6E73;">
+            Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Inizia"):
+        st.session_state.onboarding_done = True
+        st.rerun()
+
+    st.stop()
+
+# ---------------------------------------------------------
 # CSS ESTERNO (styles.css)
 # ---------------------------------------------------------
 with open("styles.css") as f:
