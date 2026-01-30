@@ -1,0 +1,134 @@
+/* -----------------------------------------
+   TIPOGRAFIA GENERALE
+------------------------------------------*/
+html, body, [class*="css"] {
+    font-family: 'Inter', sans-serif;
+    color: #1C1C1E;
+}
+
+/* Titoli */
+h1 {
+    font-weight: 700;
+    font-size: 32px !important;
+    color: #1C1C1E;
+}
+
+h2, h3 {
+    font-weight: 600;
+    color: #1C1C1E;
+}
+
+/* -----------------------------------------
+   SIDEBAR iOS STYLE
+------------------------------------------*/
+section[data-testid="stSidebar"] {
+    background-color: #EFEFF4 !important;
+    border-right: none !important;
+}
+
+div[role="radiogroup"] > label {
+    background-color: #FFFFFF;
+    border: 1px solid #D1D1D6;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+div[role="radiogroup"] > label:hover {
+    background-color: #F2F2F7;
+}
+
+/* -----------------------------------------
+   CARD STILE APP STORE
+------------------------------------------*/
+.card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    font-size: 48px;
+    color: #34C759;
+    margin-bottom: 0.5rem;
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.card-subtitle {
+    font-size: 15px;
+    color: #6E6E73;
+}
+
+/* -----------------------------------------
+   PULSANTI APPLE BLUE
+------------------------------------------*/
+.stButton>button {
+    background-color: #007AFF !important;
+    color: white !important;
+    border-radius: 12px !important;
+    padding: 0.6rem 1.2rem !important;
+    font-size: 16px !important;
+    border: none !important;
+}
+
+.stButton>button:hover {
+    background-color: #0063CC !important;
+}
+
+.stButton>button:active {
+    opacity: 0.85;
+}
+
+/* -----------------------------------------
+   MOBILE GRID 2×2
+------------------------------------------*/
+.mobile-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E5E5EA;
+    border-radius: 16px;
+    padding: 1.2rem;
+    text-align: center;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+}
+
+.mobile-card-icon {
+    font-size: 40px;
+    color: #34C759;
+    margin-bottom: 0.3rem;
+}
+
+.mobile-card-title {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* -----------------------------------------
+   ANIMAZIONI
+------------------------------------------*/
+.mobile-card, .card {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.mobile-card:active, .card:active {
+    transform: scale(0.97);
+    box-shadow: 0px 1px 3px rgba(0,0,0,0.15);
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
