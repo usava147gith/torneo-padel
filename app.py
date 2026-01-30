@@ -95,7 +95,7 @@ if not st.session_state.onboarding_done:
     </div>
     """, unsafe_allow_html=True)
 
-    if st.button("Inizia"):
+if st.button("Inizia"):
     st.session_state.onboarding_done = True
     st.rerun()
 
