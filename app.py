@@ -96,7 +96,9 @@ if not st.session_state.onboarding_done:
     """, unsafe_allow_html=True)
 
     if st.button("Inizia"):
-        st.session_state.onboarding
+    st.session_state.onboarding_done = True
+    st.rerun()
+
 
 # ---------------------------------------------------------
 # IMPORT FUNZIONI TORNEI
