@@ -20,7 +20,6 @@ with open("styles.css") as f:
 # ---------------------------------------------------------
 st.markdown("""
 <link rel="manifest" href="/manifest.json">
-
 <script>
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js');
@@ -28,8 +27,9 @@ if ('serviceWorker' in navigator) {
 </script>
 """, unsafe_allow_html=True)
 
+
 # ---------------------------------------------------------
-# LOADER ANIMATO (iOS style)
+# LOADER ANIMATO (iOS style) - VERSIONE SICURA
 # ---------------------------------------------------------
 st.markdown("""
 <div id="loader" style="
@@ -46,11 +46,6 @@ st.markdown("""
 </div>
 
 <style>
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .spinner {
   border: 4px solid #E5E5EA;
   border-top: 4px solid #34C759;
@@ -59,48 +54,49 @@ st.markdown("""
   height: 48px;
   animation: spin 0.8s linear infinite;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 
 <script>
-window.addEventListener('load', function() {
+document.addEventListener("DOMContentLoaded", function() {
     const loader = document.getElementById('loader');
     if (loader) loader.style.display = 'none';
 });
 </script>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# ONBOARDING INIZIALE
-# ---------------------------------------------------------
-#if "onboarding_done" not in st.session_state:
-#   st.session_state.onboarding_done = False
 
-#if not st.session_state.onboarding_done:
-#    st.markdown("""
-    # <div class="fade-in" style="
-        # position: fixed;
-        # top: 0; left: 0;
-        # width: 100%; height: 100%;
-        # background: white;
-        # z-index: 9998;
-        # display: flex;
-        # flex-direction: column;
-        # align-items: center;
-        # justify-content: center;
-        # text-align: center;
-        # padding: 2rem;
-    # ">
-        # <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
-        # <h1 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h1>
-        # <p style="font-size: 17px; color: #6E6E73; max-width: 300px;">
-            # Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
-        # </p>
-    # </div>
-    # """, unsafe_allow_html=True)
+# ---------------------------------------------------------
+# ONBOARDING INIZIALE (VERSIONE SICURA)
+# ---------------------------------------------------------
+if "onboarding_done" not in st.session_state:
+    st.session_state.onboarding_done = False
 
-#    if st.button("Inizia"):
-#        st.session_state.onboarding_done = True
-#        st.rerun()
+if not st.session_state.onboarding_done:
+    st.markdown("""
+    <div class="fade-in" style="
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        max-width: 400px;
+        margin: 4rem auto;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
+    ">
+        <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
+        <h2 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h2>
+        <p style="font-size: 17px; color: #6E6E73;">
+            Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Inizia"):
+        st.session_state.onboarding
 
 # ---------------------------------------------------------
 # IMPORT FUNZIONI TORNEI
