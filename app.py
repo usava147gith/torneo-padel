@@ -103,7 +103,7 @@ st.sidebar.info("V1.0 by UgoSavarese")
 # ---------------------------------------------------------
 # HOME PAGE (con griglia mobile 2×2)
 # ---------------------------------------------------------
-st.title("🏆 Generatore Tornei Padel")
+st.title("🏆 Organizza i tuoi Tornei Padel")
 st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
 
 st.markdown("### Seleziona un torneo")
@@ -158,3 +158,47 @@ elif scelta == "Draft 16 giocatori":
 
 elif scelta == "Draft misto 16 giocatori":
     run_draft16_misto()
+
+else:
+    # HOME PAGE (con griglia mobile 2×2)
+    st.title("🏆 Organizza i tuoi Tornei Padel")
+    st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
+
+    st.markdown("### Seleziona un torneo")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        <div class="mobile-card fade-in">
+            <div class="mobile-card-icon">👥</div>
+            <div class="mobile-card-title">Torneo a squadre</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div class="mobile-card fade-in">
+            <div class="mobile-card-icon">🔢</div>
+            <div class="mobile-card-title">Draft 12</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    col3, col4 = st.columns(2)
+
+    with col3:
+        st.markdown("""
+        <div class="mobile-card fade-in">
+            <div class="mobile-card-icon">🎯</div>
+            <div class="mobile-card-title">Draft 16</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        st.markdown("""
+        <div class="mobile-card fade-in">
+            <div class="mobile-card-icon">♀♂</div>
+            <div class="mobile-card-title">Draft misto</div>
+        </div>
+        """, unsafe_allow_html=True)
+
