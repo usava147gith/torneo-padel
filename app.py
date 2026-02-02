@@ -82,7 +82,7 @@ from tornei.draft16_misto import run as run_draft16_misto
 # ---------------------------------------------------------
 # SIDEBAR iOS STYLE
 # ---------------------------------------------------------
-st.sidebar.title("🎾 Tornei Padel")
+st.sidebar.title("🎾Tornei Padel")
 st.sidebar.markdown("Seleziona il tipo di torneo")
 
 scelta = st.sidebar.radio(
@@ -117,10 +117,10 @@ elif scelta == "Draft 16 giocatori":
 elif scelta == "Draft misto 16 giocatori":
     run_draft16_misto()
 
+# ---------------------------------------------------------
+# HOME PAGE (solo se nessun torneo è selezionato)
+# ---------------------------------------------------------
 else:
-    # ---------------------------------------------------------
-    # HOME PAGE (con griglia mobile 2×2)
-    # ---------------------------------------------------------
     st.title("🏆 Generatore Tornei Padel")
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
 
@@ -161,3 +161,4 @@ else:
             <div class="mobile-card-title">Draft misto</div>
         </div>
         """, unsafe_allow_html=True)
+
