@@ -5,8 +5,10 @@ from io import BytesIO
 from .logiche.logica_draft12 import solve_draft12
 
 
+# ---------------------------------------------------------
+# METRICHE
+# ---------------------------------------------------------
 def calcola_metriche(df_cal, names):
-    """Ritorna df_compagni, df_avversari."""
     n = len(names)
     compagni = np.zeros((n, n), dtype=int)
     avversari = np.zeros((n, n), dtype=int)
@@ -37,8 +39,10 @@ def calcola_metriche(df_cal, names):
     return df_compagni, df_avversari
 
 
+# ---------------------------------------------------------
+# CLASSIFICA BASATA SUI GAME VINTI
+# ---------------------------------------------------------
 def calcola_classifica(df_cal, names):
-    """Classifica basata sui game vinti (X-Y → X punti a A, Y a B)."""
     classifica = {
         nome: {
             "Punti": 0,
@@ -57,8 +61,7 @@ def calcola_classifica(df_cal, names):
 
         try:
             ga, gb = map(int, risultato.replace(" ", "").split("-"))
-        except Exception:
-            # risultato non valido, lo saltiamo
+        except:
             continue
 
         a1, a2 = row["Coppia A"].split(" & ")
@@ -91,62 +94,65 @@ def calcola_classifica(df_cal, names):
     return df_classifica
 
 
+# ---------------------------------------------------------
+# UI PRINCIPALE
+# ---------------------------------------------------------
 def run():
     st.header("Draft 12 giocatori")
     st.markdown("Inserisci i nomi dei 12 giocatori.")
 
+    # INPUT GIOCATORI
     giocatori = []
     col1, col2 = st.columns(2)
 
     with col1:
         for i in range(1, 7):
             giocatori.append(
-                st.text_input(
-                    f"Giocatore {i}",
-                    value=f"G{i}",
-                    key=f"draft12_g{i}",
-                )
+                st.text_input(f"Giocatore {i}", value=f"G{i}", key=f"draft12_g{i}")
             )
 
     with col2:
         for i in range(7, 13):
             giocatori.append(
-                st.text_input(
-                    f"Giocatore {i}",
-                    value=f"G{i}",
-                    key=f"draft12_g{i}",
-                )
+                st.text_input(f"Giocatore {i}", value=f"G{i}", key=f"draft12_g{i}")
             )
 
-    genera = st.button("Genera calendario draft 12", key="draft12_genera")
+    # ---------------------------------------------------------
+    # GENERA CALENDARIO (una sola volta)
+    # ---------------------------------------------------------
+    if st.button("Genera calendario draft 12", key="draft12_genera"):
+        with st.spinner("Calcolo del calendario in corso..."):
+            try:
+                st.session_state.draft12_calendario = solve_draft12(giocatori)
+            except Exception as e:
+                st.error("Errore durante la generazione del calendario.")
+                st.code(str(e))
+                return
 
-    if not genera:
+    # Se il calendario non è ancora stato generato → fermati
+    if "draft12_calendario" not in st.session_state:
         return
 
-    with st.spinner("Calcolo del calendario in corso..."):
-        try:
-            df_cal = solve_draft12(giocatori)
-        except Exception as e:
-            st.error("Errore durante la generazione del calendario draft 12.")
-            st.code(str(e))
-            return
+    df_cal = st.session_state.draft12_calendario.copy()
 
     st.success("Calendario generato!")
     st.subheader("Calendario")
 
-    # Colonna risultati (vuota all'inizio)
+    # ---------------------------------------------------------
+    # INSERIMENTO RISULTATI
+    # ---------------------------------------------------------
     if "draft12_risultati" not in st.session_state:
         st.session_state.draft12_risultati = [""] * len(df_cal)
 
-    # UI per inserire i risultati
-    st.markdown("### Inserisci i risultati (formato es. 5-0)")
+    st.markdown("### Inserisci i risultati (es. 5-0)")
+
     for i in range(len(df_cal)):
-        partita_label = (
+        label = (
             f"Turno {df_cal.loc[i, 'Turno']} - Campo {df_cal.loc[i, 'Campo']}: "
             f"{df_cal.loc[i, 'Coppia A']} vs {df_cal.loc[i, 'Coppia B']}"
         )
         st.session_state.draft12_risultati[i] = st.text_input(
-            partita_label,
+            label,
             value=st.session_state.draft12_risultati[i],
             key=f"draft12_ris_{i}",
         )
@@ -154,22 +160,28 @@ def run():
     df_cal["Risultato"] = st.session_state.draft12_risultati
     st.dataframe(df_cal, use_container_width=True)
 
+    # ---------------------------------------------------------
     # METRICHE
+    # ---------------------------------------------------------
     st.markdown("### Metriche torneo")
     df_compagni, df_avversari = calcola_metriche(df_cal, giocatori)
 
-    st.markdown("#### Matrice compagni (quante volte hanno giocato insieme)")
+    st.markdown("#### Matrice compagni")
     st.dataframe(df_compagni, use_container_width=True)
 
-    st.markdown("#### Matrice avversari (quante volte si sono affrontati)")
+    st.markdown("#### Matrice avversari")
     st.dataframe(df_avversari, use_container_width=True)
 
+    # ---------------------------------------------------------
     # CLASSIFICA
+    # ---------------------------------------------------------
     st.markdown("### Classifica (basata sui game vinti)")
     df_classifica = calcola_classifica(df_cal, giocatori)
     st.dataframe(df_classifica, use_container_width=True)
 
+    # ---------------------------------------------------------
     # EXPORT EXCEL
+    # ---------------------------------------------------------
     st.markdown("### Esporta in Excel")
 
     output = BytesIO()
