@@ -1,8 +1,33 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import json
 from io import BytesIO
 from .logiche.logica_draft12 import solve_draft12
+
+
+# ---------------------------------------------------------
+# COMPONENTI GRAFICI
+# ---------------------------------------------------------
+def render_match_card(turno, campo, coppiaA, coppiaB, risultato):
+    st.markdown(f"""
+    <div class="match-card">
+        <div class="match-title">Turno {turno} — Campo {campo}</div>
+        <div class="match-team">A: {coppiaA}</div>
+        <div class="match-team">B: {coppiaB}</div>
+        <div class="match-result">Risultato: {risultato if risultato else "—"}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_classifica(df):
+    for player, row in df.iterrows():
+        st.markdown(f"""
+        <div class="classifica-row">
+            <div class="classifica-name">{player}</div>
+            <div class="classifica-points">{row['Punti']} pts</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------
@@ -13,85 +38,70 @@ def calcola_metriche(df_cal, names):
     compagni = np.zeros((n, n), dtype=int)
     avversari = np.zeros((n, n), dtype=int)
 
-    name_to_idx = {name: i for i, name in enumerate(names)}
+    idx = {name: i for i, name in enumerate(names)}
 
     for _, row in df_cal.iterrows():
         a1, a2 = row["Coppia A"].split(" & ")
         b1, b2 = row["Coppia B"].split(" & ")
 
-        i1, i2 = name_to_idx[a1], name_to_idx[a2]
-        j1, j2 = name_to_idx[b1], name_to_idx[b2]
+        i1, i2 = idx[a1], idx[a2]
+        j1, j2 = idx[b1], idx[b2]
 
-        # Compagni
         compagni[i1, i2] += 1
         compagni[i2, i1] += 1
         compagni[j1, j2] += 1
         compagni[j2, j1] += 1
 
-        # Avversari
         for x in [i1, i2]:
             for y in [j1, j2]:
                 avversari[x, y] += 1
                 avversari[y, x] += 1
 
-    df_compagni = pd.DataFrame(compagni, index=names, columns=names)
-    df_avversari = pd.DataFrame(avversari, index=names, columns=names)
-    return df_compagni, df_avversari
+    return (
+        pd.DataFrame(compagni, index=names, columns=names),
+        pd.DataFrame(avversari, index=names, columns=names),
+    )
 
 
 # ---------------------------------------------------------
-# CLASSIFICA BASATA SUI GAME VINTI
+# CLASSIFICA
 # ---------------------------------------------------------
 def calcola_classifica(df_cal, names):
     classifica = {
-        nome: {
-            "Punti": 0,
-            "Game_vinti": 0,
-            "Game_persi": 0,
-            "Diff_game": 0,
-            "Partite_giocate": 0,
-        }
+        nome: {"Punti": 0, "Game_vinti": 0, "Game_persi": 0, "Diff_game": 0}
         for nome in names
     }
 
     for _, row in df_cal.iterrows():
-        risultato = row.get("Risultato", "")
-        if not risultato:
+        if not row["Risultato"]:
             continue
 
         try:
-            ga, gb = map(int, risultato.replace(" ", "").split("-"))
+            ga, gb = map(int, row["Risultato"].replace(" ", "").split("-"))
         except:
             continue
 
         a1, a2 = row["Coppia A"].split(" & ")
         b1, b2 = row["Coppia B"].split(" & ")
 
-        # Coppia A
         for p in [a1, a2]:
             classifica[p]["Punti"] += ga
             classifica[p]["Game_vinti"] += ga
             classifica[p]["Game_persi"] += gb
-            classifica[p]["Partite_giocate"] += 1
 
-        # Coppia B
         for p in [b1, b2]:
             classifica[p]["Punti"] += gb
             classifica[p]["Game_vinti"] += gb
             classifica[p]["Game_persi"] += ga
-            classifica[p]["Partite_giocate"] += 1
 
     for p in classifica:
         classifica[p]["Diff_game"] = (
             classifica[p]["Game_vinti"] - classifica[p]["Game_persi"]
         )
 
-    df_classifica = pd.DataFrame.from_dict(classifica, orient="index")
-    df_classifica.index.name = "Giocatore"
-    df_classifica = df_classifica.sort_values(
-        by=["Punti", "Diff_game", "Game_vinti"], ascending=False
-    )
-    return df_classifica
+    df = pd.DataFrame.from_dict(classifica, orient="index")
+    df.index.name = "Giocatore"
+    return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
 
 
 # ---------------------------------------------------------
@@ -99,57 +109,76 @@ def calcola_classifica(df_cal, names):
 # ---------------------------------------------------------
 def run():
     st.header("Draft 12 giocatori")
-    st.markdown("Inserisci i nomi dei 12 giocatori.")
 
+    # ---------------------------------------------------------
+    # TOOLBAR SEMPRE IN ALTO
+    # ---------------------------------------------------------
+    colA, colB, colC, colD = st.columns(4)
+
+    with colA:
+        if st.button("🔄 Rigenera torneo"):
+            st.session_state.clear()
+            st.rerun()
+
+    with colB:
+        salva = st.button("💾 Salva torneo")
+
+    with colC:
+        carica = st.button("📂 Carica torneo")
+
+    with colD:
+        esporta = st.button("📊 Esporta Excel")
+
+    # ---------------------------------------------------------
+    # CARICAMENTO TORNEO
+    # ---------------------------------------------------------
+    uploaded = st.file_uploader("Carica file torneo", type="json")
+    if uploaded:
+        data = json.load(uploaded)
+        st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
+        st.session_state.draft12_risultati = data["risultati"]
+        st.session_state.draft12_giocatori = data["giocatori"]
+        st.success("Torneo caricato!")
+
+    # ---------------------------------------------------------
     # INPUT GIOCATORI
-    giocatori = []
-    col1, col2 = st.columns(2)
+    # ---------------------------------------------------------
+    if "draft12_giocatori" not in st.session_state:
+        giocatori = []
+        col1, col2 = st.columns(2)
+        with col1:
+            for i in range(1, 7):
+                giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+        with col2:
+            for i in range(7, 13):
+                giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+        st.session_state.draft12_giocatori = giocatori
 
-    with col1:
-        for i in range(1, 7):
-            giocatori.append(
-                st.text_input(f"Giocatore {i}", value=f"G{i}", key=f"draft12_g{i}")
-            )
-
-    with col2:
-        for i in range(7, 13):
-            giocatori.append(
-                st.text_input(f"Giocatore {i}", value=f"G{i}", key=f"draft12_g{i}")
-            )
+    giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
-    # GENERA CALENDARIO (una sola volta)
+    # GENERA CALENDARIO
     # ---------------------------------------------------------
-    if st.button("Genera calendario draft 12", key="draft12_genera"):
-        with st.spinner("Calcolo del calendario in corso..."):
-            try:
-                st.session_state.draft12_calendario = solve_draft12(giocatori)
-            except Exception as e:
-                st.error("Errore durante la generazione del calendario.")
-                st.code(str(e))
-                return
+    if st.button("Genera calendario draft 12"):
+        st.session_state.draft12_calendario = solve_draft12(giocatori)
+        st.session_state.draft12_risultati = [""] * len(
+            st.session_state.draft12_calendario
+        )
 
-    # Se il calendario non è ancora stato generato → fermati
     if "draft12_calendario" not in st.session_state:
         return
 
     df_cal = st.session_state.draft12_calendario.copy()
 
-    st.success("Calendario generato!")
-    st.subheader("Calendario")
-
     # ---------------------------------------------------------
-    # INSERIMENTO RISULTATI
+    # RISULTATI
     # ---------------------------------------------------------
-    if "draft12_risultati" not in st.session_state:
-        st.session_state.draft12_risultati = [""] * len(df_cal)
-
-    st.markdown("### Inserisci i risultati (es. 5-0)")
+    st.subheader("Risultati")
 
     for i in range(len(df_cal)):
         label = (
-            f"Turno {df_cal.loc[i, 'Turno']} - Campo {df_cal.loc[i, 'Campo']}: "
-            f"{df_cal.loc[i, 'Coppia A']} vs {df_cal.loc[i, 'Coppia B']}"
+            f"Turno {df_cal.loc[i,'Turno']} - Campo {df_cal.loc[i,'Campo']}: "
+            f"{df_cal.loc[i,'Coppia A']} vs {df_cal.loc[i,'Coppia B']}"
         )
         st.session_state.draft12_risultati[i] = st.text_input(
             label,
@@ -158,43 +187,72 @@ def run():
         )
 
     df_cal["Risultato"] = st.session_state.draft12_risultati
+
+    # ---------------------------------------------------------
+    # CARD + TABELLA
+    # ---------------------------------------------------------
+    st.subheader("Partite (card)")
+    for i, row in df_cal.iterrows():
+        render_match_card(
+            row["Turno"],
+            row["Campo"],
+            row["Coppia A"],
+            row["Coppia B"],
+            row["Risultato"],
+        )
+
+    st.subheader("Calendario (tabella)")
     st.dataframe(df_cal, use_container_width=True)
 
     # ---------------------------------------------------------
     # METRICHE
     # ---------------------------------------------------------
-    st.markdown("### Metriche torneo")
-    df_compagni, df_avversari = calcola_metriche(df_cal, giocatori)
+    st.subheader("Metriche")
+    df_comp, df_avv = calcola_metriche(df_cal, giocatori)
 
-    st.markdown("#### Matrice compagni")
-    st.dataframe(df_compagni, use_container_width=True)
+    st.markdown("#### Compagni")
+    st.dataframe(df_comp.style.background_gradient(cmap="Blues"))
 
-    st.markdown("#### Matrice avversari")
-    st.dataframe(df_avversari, use_container_width=True)
+    st.markdown("#### Avversari")
+    st.dataframe(df_avv.style.background_gradient(cmap="Oranges"))
 
     # ---------------------------------------------------------
     # CLASSIFICA
     # ---------------------------------------------------------
-    st.markdown("### Classifica (basata sui game vinti)")
+    st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
-    st.dataframe(df_classifica, use_container_width=True)
+    render_classifica(df_classifica)
+
+    # ---------------------------------------------------------
+    # SALVATAGGIO
+    # ---------------------------------------------------------
+    if salva:
+        data = {
+            "giocatori": giocatori,
+            "calendario": df_cal.to_dict(),
+            "risultati": st.session_state.draft12_risultati,
+        }
+        st.download_button(
+            "Scarica file torneo",
+            data=json.dumps(data).encode("utf-8"),
+            file_name="torneo_draft12.json",
+            mime="application/json",
+        )
 
     # ---------------------------------------------------------
     # EXPORT EXCEL
     # ---------------------------------------------------------
-    st.markdown("### Esporta in Excel")
+    if esporta:
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df_cal.to_excel(writer, sheet_name="Calendario", index=False)
+            df_comp.to_excel(writer, sheet_name="Compagni")
+            df_avv.to_excel(writer, sheet_name="Avversari")
+            df_classifica.to_excel(writer, sheet_name="Classifica")
 
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df_cal.to_excel(writer, sheet_name="Calendario", index=False)
-        df_compagni.to_excel(writer, sheet_name="Compagni")
-        df_avversari.to_excel(writer, sheet_name="Avversari")
-        df_classifica.to_excel(writer, sheet_name="Classifica")
-
-    st.download_button(
-        label="Scarica Excel draft 12 completo",
-        data=output.getvalue(),
-        file_name="draft12_completo.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        key="draft12_download",
-    )
+        st.download_button(
+            "Scarica Excel completo",
+            data=output.getvalue(),
+            file_name="draft12_completo.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
