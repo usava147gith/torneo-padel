@@ -33,7 +33,7 @@ def render_classifica(df):
         </div>
         """,
             unsafe_allow_html=True,
-    )
+        )
 
 
 # ---------------------------------------------------------
@@ -147,9 +147,9 @@ def run():
 
         if conferma:
             st.session_state.draft12_giocatori = giocatori
-            st.experimental_rerun()
+            st.rerun()
 
-        st.stop()  # finché non confermi, non andare avanti
+        st.stop()
 
     # ---------------------------------------------------------
     # FASE 2 — GIOCATORI CONFERMATI
@@ -180,9 +180,7 @@ def run():
     # ---------------------------------------------------------
     if st.button("Genera calendario draft 12"):
         st.session_state.draft12_calendario = solve_draft12(giocatori)
-        st.session_state.draft12_risultati = [""] * len(
-            st.session_state.draft12_calendario
-        )
+        st.session_state.draft12_risultati = [""] * len(st.session_state.draft12_calendario)
 
     if "draft12_calendario" not in st.session_state:
         return
