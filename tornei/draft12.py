@@ -5,72 +5,35 @@ import json
 from io import BytesIO
 from .logiche.logica_draft12 import solve_draft12
 
- def run():
-    st.header("Draft 12 giocatori")
-
-    # ---------------------------------------------------------
-    # CARICAMENTO TORNEO
-    # ---------------------------------------------------------
-    uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
-    if uploaded:
-        data = json.load(uploaded)
-        st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
-        st.session_state.draft12_risultati = data["risultati"]
-        st.session_state.draft12_giocatori = data["giocatori"]
-        st.success("Torneo caricato!")
-
-    # ---------------------------------------------------------
-    # FASE 1 — INSERIMENTO GIOCATORI (CON FORM)
-    # ---------------------------------------------------------
-    if "draft12_giocatori" not in st.session_state:
-        with st.form("draft12_giocatori_form"):
-            giocatori = []
-            col1, col2 = st.columns(2)
-
-            with col1:
-                for i in range(1, 7):
-                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
-
-            with col2:
-                for i in range(7, 13):
-                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
-
-            conferma = st.form_submit_button("Conferma giocatori")
-
-        if conferma:
-            st.session_state.draft12_giocatori = giocatori
-            st.experimental_rerun()
-
-        st.stop()  # finché non confermi, non andare avanti
-
-
-    # ---------------------------------------------------------
-    # DA QUI IN POI GIOCATORI SONO FISSI
-    # ---------------------------------------------------------
-    giocatori = st.session_state.draft12_giocatori
 
 # ---------------------------------------------------------
 # COMPONENTI GRAFICI
 # ---------------------------------------------------------
 def render_match_card(turno, campo, coppiaA, coppiaB, risultato):
-    st.markdown(f"""
+    st.markdown(
+        f"""
     <div class="match-card">
         <div class="match-title">Turno {turno} — Campo {campo}</div>
         <div class="match-team">A: {coppiaA}</div>
         <div class="match-team">B: {coppiaB}</div>
         <div class="match-result">Risultato: {risultato if risultato else "—"}</div>
     </div>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_classifica(df):
     for player, row in df.iterrows():
-        st.markdown(f"""
+        st.markdown(
+            f"""
         <div class="classifica-row">
             <div class="classifica-name">{player}</div>
             <div class="classifica-points">{row['Punti']} pts</div>
         </div>
-        """, unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+    )
 
 
 # ---------------------------------------------------------
@@ -121,7 +84,7 @@ def calcola_classifica(df_cal, names):
 
         try:
             ga, gb = map(int, row["Risultato"].replace(" ", "").split("-"))
-        except:
+        except Exception:
             continue
 
         a1, a2 = row["Coppia A"].split(" & ")
@@ -146,6 +109,47 @@ def calcola_classifica(df_cal, names):
     df.index.name = "Giocatore"
     return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
 
+
+# ---------------------------------------------------------
+# UI PRINCIPALE
+# ---------------------------------------------------------
+def run():
+    st.header("Draft 12 giocatori")
+
+    # ---------------------------------------------------------
+    # CARICAMENTO TORNEO
+    # ---------------------------------------------------------
+    uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
+    if uploaded:
+        data = json.load(uploaded)
+        st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
+        st.session_state.draft12_risultati = data["risultati"]
+        st.session_state.draft12_giocatori = data["giocatori"]
+        st.success("Torneo caricato!")
+
+    # ---------------------------------------------------------
+    # FASE 1 — INSERIMENTO GIOCATORI (CON FORM)
+    # ---------------------------------------------------------
+    if "draft12_giocatori" not in st.session_state:
+        with st.form("draft12_giocatori_form"):
+            giocatori = []
+            col1, col2 = st.columns(2)
+
+            with col1:
+                for i in range(1, 7):
+                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+
+            with col2:
+                for i in range(7, 13):
+                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+
+            conferma = st.form_submit_button("Conferma giocatori")
+
+        if conferma:
+            st.session_state.draft12_giocatori = giocatori
+            st.experimental_rerun()
+
+        st.stop()  # finché non confermi, non andare avanti
 
     # ---------------------------------------------------------
     # FASE 2 — GIOCATORI CONFERMATI
