@@ -157,26 +157,21 @@ def run():
     giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
-    # TOOLBAR SEMPRE IN ALTO (ORA FUNZIONANTE)
+    # TOOLBAR IN ALTO (SOLO UI)
     # ---------------------------------------------------------
     colA, colB, colC, colD = st.columns(4)
 
     with colA:
-        if st.button("🔄 Rigenera torneo"):
-            st.session_state.clear()
-            st.rerun()
+        click_rigenera = st.button("🔄 Rigenera torneo")
 
     with colB:
-        if st.button("💾 Salva torneo (sopra)"):
-            st.session_state.show_save = True
+        click_salva = st.button("💾 Salva torneo (sopra)")
 
     with colC:
-        if st.button("📂 Carica torneo (sopra)"):
-            st.session_state.show_load = True
+        click_carica = st.button("📂 Carica torneo (sopra)")
 
     with colD:
-        if st.button("📊 Esporta Excel (sopra)"):
-            st.session_state.show_export = True
+        click_export = st.button("📊 Esporta Excel (sopra)")
 
     # ---------------------------------------------------------
     # GENERA CALENDARIO
@@ -189,6 +184,22 @@ def run():
         return
 
     df_cal = st.session_state.draft12_calendario.copy()
+
+    # ---------------------------------------------------------
+    # LOGICA FUNZIONANTE DEI PULSANTI IN ALTO
+    # ---------------------------------------------------------
+    if click_rigenera:
+        st.session_state.clear()
+        st.rerun()
+
+    if click_salva:
+        st.session_state.show_save = True
+
+    if click_carica:
+        st.session_state.show_load = True
+
+    if click_export:
+        st.session_state.show_export = True
 
     # ---------------------------------------------------------
     # RISULTATI
@@ -244,7 +255,7 @@ def run():
     render_classifica(df_classifica)
 
     # ---------------------------------------------------------
-    # SALVATAGGIO (SOPRA E SOTTO)
+    # SALVATAGGIO
     # ---------------------------------------------------------
     if st.session_state.get("show_save", False):
         data = {
@@ -260,7 +271,7 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # EXPORT EXCEL (SOPRA E SOTTO)
+    # EXPORT EXCEL
     # ---------------------------------------------------------
     if st.session_state.get("show_export", False):
         output = BytesIO()
