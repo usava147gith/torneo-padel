@@ -128,7 +128,7 @@ def run():
         st.success("Torneo caricato!")
 
     # ---------------------------------------------------------
-    # FASE 1 — INSERIMENTO GIOCATORI (CON FORM)
+    # FASE 1 — INSERIMENTO GIOCATORI
     # ---------------------------------------------------------
     if "draft12_giocatori" not in st.session_state:
         with st.form("draft12_giocatori_form"):
@@ -157,7 +157,7 @@ def run():
     giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
-    # TOOLBAR SEMPRE IN ALTO
+    # TOOLBAR SEMPRE IN ALTO (ORA FUNZIONANTE)
     # ---------------------------------------------------------
     colA, colB, colC, colD = st.columns(4)
 
@@ -167,13 +167,16 @@ def run():
             st.rerun()
 
     with colB:
-        salva = st.button("💾 Salva torneo")
+        if st.button("💾 Salva torneo (sopra)"):
+            st.session_state.show_save = True
 
     with colC:
-        carica = st.button("📂 Carica torneo")
+        if st.button("📂 Carica torneo (sopra)"):
+            st.session_state.show_load = True
 
     with colD:
-        esporta = st.button("📊 Esporta Excel")
+        if st.button("📊 Esporta Excel (sopra)"):
+            st.session_state.show_export = True
 
     # ---------------------------------------------------------
     # GENERA CALENDARIO
@@ -241,16 +244,12 @@ def run():
     render_classifica(df_classifica)
 
     # ---------------------------------------------------------
+    # SALVATAGGIO (SOPRA E SOTTO)
     # ---------------------------------------------------------
-    # SALVATAGGIO
-    # ---------------------------------------------------------
-    if salva:
-        st.session_state.show_save = True
-
     if st.session_state.get("show_save", False):
         data = {
             "giocatori": giocatori,
-            "calendario": df_cal.to_dict(),
+            "calendario": df_cal.to_dict(orient="records"),
             "risultati": st.session_state.draft12_risultati,
         }
         st.download_button(
@@ -261,11 +260,8 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # EXPORT EXCEL
+    # EXPORT EXCEL (SOPRA E SOTTO)
     # ---------------------------------------------------------
-    if esporta:
-        st.session_state.show_export = True
-
     if st.session_state.get("show_export", False):
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
