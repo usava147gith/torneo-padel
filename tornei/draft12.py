@@ -241,9 +241,13 @@ def run():
     render_classifica(df_classifica)
 
     # ---------------------------------------------------------
+    # ---------------------------------------------------------
     # SALVATAGGIO
     # ---------------------------------------------------------
     if salva:
+        st.session_state.show_save = True
+
+    if st.session_state.get("show_save", False):
         data = {
             "giocatori": giocatori,
             "calendario": df_cal.to_dict(),
@@ -260,6 +264,9 @@ def run():
     # EXPORT EXCEL
     # ---------------------------------------------------------
     if esporta:
+        st.session_state.show_export = True
+
+    if st.session_state.get("show_export", False):
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df_cal.to_excel(writer, sheet_name="Calendario", index=False)
