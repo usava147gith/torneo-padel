@@ -70,6 +70,13 @@ if not st.session_state.onboarding_done:
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+# TEST MATPLOTLIB
+try:
+    import matplotlib
+    st.success(f"Matplotlib è installato. Versione: {matplotlib.__version__}")
+except Exception as e:
+    st.error(f"Matplotlib NON è installato: {e}")
+
 
 # ---------------------------------------------------------
 # IMPORT FUNZIONI TORNEI
