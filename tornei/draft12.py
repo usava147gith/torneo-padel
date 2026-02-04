@@ -157,7 +157,7 @@ def run():
     giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
-    # TOOLBAR IN ALTO (SOLO UI)
+    # TOOLBAR IN ALTO (UI SOLA)
     # ---------------------------------------------------------
     colA, colB, colC, colD = st.columns(4)
 
@@ -184,22 +184,6 @@ def run():
         return
 
     df_cal = st.session_state.draft12_calendario.copy()
-
-    # ---------------------------------------------------------
-    # LOGICA FUNZIONANTE DEI PULSANTI IN ALTO
-    # ---------------------------------------------------------
-    if click_rigenera:
-        st.session_state.clear()
-        st.rerun()
-
-    if click_salva:
-        st.session_state.show_save = True
-
-    if click_carica:
-        st.session_state.show_load = True
-
-    if click_export:
-        st.session_state.show_export = True
 
     # ---------------------------------------------------------
     # RISULTATI
@@ -255,7 +239,7 @@ def run():
     render_classifica(df_classifica)
 
     # ---------------------------------------------------------
-    # SALVATAGGIO
+    # SALVATAGGIO (pulsanti in basso)
     # ---------------------------------------------------------
     if st.session_state.get("show_save", False):
         data = {
@@ -271,7 +255,7 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # EXPORT EXCEL
+    # EXPORT EXCEL (pulsanti in basso)
     # ---------------------------------------------------------
     if st.session_state.get("show_export", False):
         output = BytesIO()
@@ -287,3 +271,22 @@ def run():
             file_name="draft12_completo.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
+
+    # ---------------------------------------------------------
+    # LOGICA FINALE DEI PULSANTI IN ALTO (FUNZIONANTE)
+    # ---------------------------------------------------------
+    if click_rigenera:
+        st.session_state.clear()
+        st.rerun()
+
+    if click_salva:
+        st.session_state.show_save = True
+        st.rerun()
+
+    if click_carica:
+        st.session_state.show_load = True
+        st.rerun()
+
+    if click_export:
+        st.session_state.show_export = True
+        st.rerun()
