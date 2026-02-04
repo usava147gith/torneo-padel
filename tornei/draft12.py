@@ -5,6 +5,49 @@ import json
 from io import BytesIO
 from .logiche.logica_draft12 import solve_draft12
 
+ def run():
+    st.header("Draft 12 giocatori")
+
+    # ---------------------------------------------------------
+    # CARICAMENTO TORNEO
+    # ---------------------------------------------------------
+    uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
+    if uploaded:
+        data = json.load(uploaded)
+        st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
+        st.session_state.draft12_risultati = data["risultati"]
+        st.session_state.draft12_giocatori = data["giocatori"]
+        st.success("Torneo caricato!")
+
+    # ---------------------------------------------------------
+    # FASE 1 — INSERIMENTO GIOCATORI (CON FORM)
+    # ---------------------------------------------------------
+    if "draft12_giocatori" not in st.session_state:
+        with st.form("draft12_giocatori_form"):
+            giocatori = []
+            col1, col2 = st.columns(2)
+
+            with col1:
+                for i in range(1, 7):
+                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+
+            with col2:
+                for i in range(7, 13):
+                    giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
+
+            conferma = st.form_submit_button("Conferma giocatori")
+
+        if conferma:
+            st.session_state.draft12_giocatori = giocatori
+            st.experimental_rerun()
+
+        st.stop()  # finché non confermi, non andare avanti
+
+
+    # ---------------------------------------------------------
+    # DA QUI IN POI GIOCATORI SONO FISSI
+    # ---------------------------------------------------------
+    giocatori = st.session_state.draft12_giocatori
 
 # ---------------------------------------------------------
 # COMPONENTI GRAFICI
@@ -104,11 +147,10 @@ def calcola_classifica(df_cal, names):
     return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
 
 
-# ---------------------------------------------------------
-# UI PRINCIPALE
-# ---------------------------------------------------------
-def run():
-    st.header("Draft 12 giocatori")
+    # ---------------------------------------------------------
+    # FASE 2 — GIOCATORI CONFERMATI
+    # ---------------------------------------------------------
+    giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
     # TOOLBAR SEMPRE IN ALTO
@@ -128,33 +170,6 @@ def run():
 
     with colD:
         esporta = st.button("📊 Esporta Excel")
-
-    # ---------------------------------------------------------
-    # CARICAMENTO TORNEO
-    # ---------------------------------------------------------
-    uploaded = st.file_uploader("Carica file torneo", type="json")
-    if uploaded:
-        data = json.load(uploaded)
-        st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
-        st.session_state.draft12_risultati = data["risultati"]
-        st.session_state.draft12_giocatori = data["giocatori"]
-        st.success("Torneo caricato!")
-
-    # ---------------------------------------------------------
-    # INPUT GIOCATORI
-    # ---------------------------------------------------------
-    if "draft12_giocatori" not in st.session_state:
-        giocatori = []
-        col1, col2 = st.columns(2)
-        with col1:
-            for i in range(1, 7):
-                giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
-        with col2:
-            for i in range(7, 13):
-                giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
-        st.session_state.draft12_giocatori = giocatori
-
-    giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
     # GENERA CALENDARIO
@@ -192,7 +207,7 @@ def run():
     # CARD + TABELLA
     # ---------------------------------------------------------
     st.subheader("Partite (card)")
-    for i, row in df_cal.iterrows():
+    for _, row in df_cal.iterrows():
         render_match_card(
             row["Turno"],
             row["Campo"],
