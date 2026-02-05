@@ -179,13 +179,14 @@ def run():
     # ---------------------------------------------------------
     st.subheader("Partite (card)")
     for _, row in df_cal.iterrows():
-        render_match_card(
-            row["Turno"],
-            row["Campo"],
-            row["Coppia A"],
-            row["Coppia B"],
-            row["Risultato"],
-        )
+        col1, col2, col3, col4, col5 = st.columns([1,1,3,3,2])
+
+        col1.write(f"Turno {row['Turno']}")
+        col2.write(f"Campo {row['Campo']}")
+        col3.write(row["Coppia A"])
+        col4.write(row["Coppia B"])
+        col5.write(row["Risultato"] or "—")
+
 
     st.subheader("Calendario (tabella)")
     st.dataframe(df_cal, use_container_width=True)
@@ -222,13 +223,10 @@ def run():
     st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
     render_classifica(df_classifica)
-    # ---------------------------------------------------------
-    # SALVATAGGIO
+        # ---------------------------------------------------------
+    # SALVATAGGIO (ONE-CLICK)
     # ---------------------------------------------------------
     if click_salva:
-        st.session_state.show_save = True
-
-    if st.session_state.get("show_save", False):
         data = {
             "giocatori": giocatori,
             "calendario": df_cal.to_dict(orient="records"),
@@ -239,15 +237,13 @@ def run():
             data=json.dumps(data).encode("utf-8"),
             file_name="torneo_draft12.json",
             mime="application/json",
+            key="download_json",
         )
 
     # ---------------------------------------------------------
-    # EXPORT EXCEL
+    # EXPORT EXCEL (ONE-CLICK)
     # ---------------------------------------------------------
     if click_export:
-        st.session_state.show_export = True
-
-    if st.session_state.get("show_export", False):
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
             df_cal.to_excel(writer, sheet_name="Calendario", index=False)
@@ -260,7 +256,9 @@ def run():
             data=output.getvalue(),
             file_name="draft12_completo.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="download_excel",
         )
+
 
     # ---------------------------------------------------------
     # RIGENERA TORNEO
