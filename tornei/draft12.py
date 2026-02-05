@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
-from logiche.logica_draft12 import solve_draft12
+from .logiche.logica_draft12 import solve_draft12
 
 
 # ---------------------------------------------------------
@@ -261,3 +261,4 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
+
