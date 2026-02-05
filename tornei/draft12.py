@@ -191,20 +191,50 @@ def run():
     st.subheader("Calendario (tabella)")
     st.dataframe(df_cal, use_container_width=True)
     # ---------------------------------------------------------
-    # TOOLBAR (UNA SOLA, FUNZIONANTE)
+    # TOOLBAR DEFINITIVA (ONE-CLICK, SENZA FLAG)
     # ---------------------------------------------------------
     st.subheader("Azioni torneo")
 
     colA, colB, colC = st.columns(3)
 
+    # 🔄 RIGENERA TORNEO
     with colA:
-        click_rigenera = st.button("🔄 Rigenera torneo")
+        if st.button("🔄 Rigenera torneo"):
+            st.session_state.clear()
+            st.rerun()
 
+    # 💾 SALVA TORNEO (DOWNLOAD DIRETTO)
     with colB:
-        click_salva = st.button("💾 Salva torneo")
+        data = {
+            "giocatori": giocatori,
+            "calendario": df_cal.to_dict(orient="records"),
+            "risultati": st.session_state.draft12_risultati,
+        }
+        st.download_button(
+            "💾 Salva torneo",
+            data=json.dumps(data).encode("utf-8"),
+            file_name="torneo_draft12.json",
+            mime="application/json",
+            key="download_json",
+        )
 
+    # 📊 ESPORTA EXCEL (DOWNLOAD DIRETTO)
     with colC:
-        click_export = st.button("📊 Esporta Excel")
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df_cal.to_excel(writer, sheet_name="Calendario", index=False)
+            df_comp.to_excel(writer, sheet_name="Compagni")
+            df_avv.to_excel(writer, sheet_name="Avversari")
+            df_classifica.to_excel(writer, sheet_name="Classifica")
+
+        st.download_button(
+            "📊 Esporta Excel",
+            data=output.getvalue(),
+            file_name="draft12_completo.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            key="download_excel",
+        )
+
     # ---------------------------------------------------------
     # METRICHE
     # ---------------------------------------------------------
@@ -223,46 +253,4 @@ def run():
     st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
     render_classifica(df_classifica)
-        # ---------------------------------------------------------
-    # SALVATAGGIO (ONE-CLICK)
-    # ---------------------------------------------------------
-    if click_salva:
-        data = {
-            "giocatori": giocatori,
-            "calendario": df_cal.to_dict(orient="records"),
-            "risultati": st.session_state.draft12_risultati,
-        }
-        st.download_button(
-            "Scarica file torneo",
-            data=json.dumps(data).encode("utf-8"),
-            file_name="torneo_draft12.json",
-            mime="application/json",
-            key="download_json",
-        )
-
-    # ---------------------------------------------------------
-    # EXPORT EXCEL (ONE-CLICK)
-    # ---------------------------------------------------------
-    if click_export:
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            df_cal.to_excel(writer, sheet_name="Calendario", index=False)
-            df_comp.to_excel(writer, sheet_name="Compagni")
-            df_avv.to_excel(writer, sheet_name="Avversari")
-            df_classifica.to_excel(writer, sheet_name="Classifica")
-
-        st.download_button(
-            "Scarica Excel completo",
-            data=output.getvalue(),
-            file_name="draft12_completo.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key="download_excel",
-        )
-
-
-    # ---------------------------------------------------------
-    # RIGENERA TORNEO
-    # ---------------------------------------------------------
-    if click_rigenera:
-        st.session_state.clear()
-        st.rerun()
+    
