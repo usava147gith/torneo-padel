@@ -7,52 +7,6 @@ from .logiche.logica_draft16 import solve_draft16
 
 
 # ---------------------------------------------------------
-# CSS PERSONALIZZATO (VERDE SPORTIVO)
-# ---------------------------------------------------------
-st.markdown("""
-<style>
-.match-card {
-    background-color: #F0FFF4;
-    border-left: 6px solid #27AE60;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-}
-.match-title {
-    font-weight: 700;
-    color: #1E2A1F;
-}
-.classifica-card {
-    background-color: #F0FFF4;
-    border-left: 6px solid #27AE60;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.classifica-name {
-    font-weight: 600;
-    color: #1E2A1F;
-}
-.classifica-points {
-    font-weight: 700;
-    color: #27AE60;
-}
-.classifica-diff {
-    background-color: #27AE60;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    margin-left: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-# ---------------------------------------------------------
 # COMPONENTI GRAFICI
 # ---------------------------------------------------------
 def render_match_card(turno, campo, coppiaA, coppiaB, risultato):
@@ -309,4 +263,3 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
-
