@@ -117,7 +117,7 @@ def run():
     st.header("Draft 12 giocatori")
 
     # ---------------------------------------------------------
-    # CARICAMENTO TORNEO (UNICO IN ALTO)
+    # CARICAMENTO TORNEO
     # ---------------------------------------------------------
     uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
     if uploaded:
@@ -128,7 +128,7 @@ def run():
         st.success("Torneo caricato!")
 
     # ---------------------------------------------------------
-    # FASE 1 — INSERIMENTO GIOCATORI
+    # INSERIMENTO GIOCATORI
     # ---------------------------------------------------------
     if "draft12_giocatori" not in st.session_state:
         with st.form("draft12_giocatori_form"):
@@ -211,7 +211,14 @@ def run():
     st.dataframe(df_avv.style.background_gradient(cmap="Oranges"))
 
     # ---------------------------------------------------------
-    # TOOLBAR DEFINITIVA (ONE-CLICK)
+    # CLASSIFICA
+    # ---------------------------------------------------------
+    st.subheader("Classifica")
+    df_classifica = calcola_classifica(df_cal, giocatori)
+    render_classifica(df_classifica)
+
+    # ---------------------------------------------------------
+    # TOOLBAR (ONE-CLICK)
     # ---------------------------------------------------------
     st.subheader("Azioni torneo")
 
@@ -254,10 +261,3 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
-
-    # ---------------------------------------------------------
-    # CLASSIFICA
-    # ---------------------------------------------------------
-    st.subheader("Classifica")
-    df_classifica = calcola_classifica(df_cal, giocatori)
-    render_classifica(df_classifica)
