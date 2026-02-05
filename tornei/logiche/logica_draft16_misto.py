@@ -135,3 +135,6 @@ def build_schedule(names_men, names_women):
 
     df = pd.DataFrame(rows)
     return df
+
+def solve_draft16_misto(names_men, names_women):
+    return build_schedule(names_men, names_women)
