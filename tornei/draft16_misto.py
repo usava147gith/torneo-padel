@@ -3,8 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
-from .logiche.logica_draft16_misto import solve_draft16_misto
-
+from logiche.logica_draft16_misto import solve_draft16_misto
 
 # ---------------------------------------------------------
 # COMPONENTI GRAFICI
@@ -22,7 +21,6 @@ def render_match_card(turno, campo, coppiaA, coppiaB, risultato):
         unsafe_allow_html=True,
     )
 
-
 def render_classifica_premium(df):
     for player, row in df.iterrows():
         diff = row["Diff_game"]
@@ -38,7 +36,6 @@ def render_classifica_premium(df):
             """,
             unsafe_allow_html=True
         )
-
 
 # ---------------------------------------------------------
 # METRICHE
@@ -71,7 +68,6 @@ def calcola_metriche(df_cal, names):
         pd.DataFrame(compagni, index=names, columns=names),
         pd.DataFrame(avversari, index=names, columns=names),
     )
-
 
 # ---------------------------------------------------------
 # CLASSIFICA
@@ -113,7 +109,6 @@ def calcola_classifica(df_cal, names):
     df.index.name = "Giocatore"
     return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
 
-
 # ---------------------------------------------------------
 # UI PRINCIPALE
 # ---------------------------------------------------------
@@ -139,10 +134,7 @@ def run():
             giocatori = []
             col1, col2 = st.columns(2)
 
-            for i in range(1, 9):
-                giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
-
-            for i in range(9, 17):
+            for i in range(1, 17):
                 giocatori.append(st.text_input(f"Giocatore {i}", value=f"G{i}"))
 
             conferma = st.form_submit_button("Conferma giocatori")
@@ -159,7 +151,10 @@ def run():
     # GENERA CALENDARIO
     # ---------------------------------------------------------
     if st.button("Genera calendario draft 16 misto"):
-        st.session_state.draft16m_calendario = solve_draft16_misto(giocatori)
+        names_men = giocatori[:8]
+        names_women = giocatori[8:]
+
+        st.session_state.draft16m_calendario = solve_draft16_misto(names_men, names_women)
         st.session_state.draft16m_risultati = [""] * len(st.session_state.draft16m_calendario)
 
     if "draft16m_calendario" not in st.session_state:
@@ -226,13 +221,11 @@ def run():
 
     colA, colB, colC = st.columns(3)
 
-    # 🔄 RIGENERA TORNEO
     with colA:
         if st.button("🔄 Rigenera torneo"):
             st.session_state.clear()
             st.rerun()
 
-    # 💾 SALVA TORNEO
     with colB:
         data = {
             "giocatori": giocatori,
@@ -247,7 +240,6 @@ def run():
             key="download_json",
         )
 
-    # 📊 ESPORTA EXCEL
     with colC:
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
