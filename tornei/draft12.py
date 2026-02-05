@@ -34,8 +34,6 @@ def render_classifica(df):
         """,
             unsafe_allow_html=True,
         )
-
-
 # ---------------------------------------------------------
 # METRICHE
 # ---------------------------------------------------------
@@ -108,11 +106,6 @@ def calcola_classifica(df_cal, names):
     df = pd.DataFrame.from_dict(classifica, orient="index")
     df.index.name = "Giocatore"
     return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
-
-
-# ---------------------------------------------------------
-# UI PRINCIPALE
-# ---------------------------------------------------------
 def run():
     st.header("Draft 12 giocatori")
 
@@ -126,7 +119,6 @@ def run():
         st.session_state.draft12_risultati = data["risultati"]
         st.session_state.draft12_giocatori = data["giocatori"]
         st.success("Torneo caricato!")
-
     # ---------------------------------------------------------
     # FASE 1 — INSERIMENTO GIOCATORI
     # ---------------------------------------------------------
@@ -150,10 +142,6 @@ def run():
             st.rerun()
 
         st.stop()
-
-    # ---------------------------------------------------------
-    # FASE 2 — GIOCATORI CONFERMATI
-    # ---------------------------------------------------------
     giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
@@ -201,9 +189,8 @@ def run():
 
     st.subheader("Calendario (tabella)")
     st.dataframe(df_cal, use_container_width=True)
-
     # ---------------------------------------------------------
-    # TOOLBAR (ORA QUI, FUNZIONANTE)
+    # TOOLBAR (UNA SOLA, FUNZIONANTE)
     # ---------------------------------------------------------
     st.subheader("Azioni torneo")
 
@@ -217,7 +204,6 @@ def run():
 
     with colC:
         click_export = st.button("📊 Esporta Excel")
-
     # ---------------------------------------------------------
     # METRICHE
     # ---------------------------------------------------------
@@ -236,7 +222,6 @@ def run():
     st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
     render_classifica(df_classifica)
-
     # ---------------------------------------------------------
     # SALVATAGGIO
     # ---------------------------------------------------------
