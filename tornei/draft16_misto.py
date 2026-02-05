@@ -3,53 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
-from logiche.logica_draft16_misto import solve_draft16_misto
-
-
-# ---------------------------------------------------------
-# CSS PERSONALIZZATO (ARANCIONE DINAMICO)
-# ---------------------------------------------------------
-st.markdown("""
-<style>
-.match-card {
-    background-color: #FFF5EB;
-    border-left: 6px solid #D35400;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-}
-.match-title {
-    font-weight: 700;
-    color: #2C3E50;
-}
-.classifica-card {
-    background-color: #FFF5EB;
-    border-left: 6px solid #D35400;
-    padding: 10px 14px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.classifica-name {
-    font-weight: 600;
-    color: #2C3E50;
-}
-.classifica-points {
-    font-weight: 700;
-    color: #D35400;
-}
-.classifica-diff {
-    background-color: #D35400;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    margin-left: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
+from .logiche.logica_draft16_misto import solve_draft16_misto
 
 
 # ---------------------------------------------------------
