@@ -77,7 +77,7 @@ with open("styles.css") as f:
 from tornei.torneo_squadre import run as run_torneo_squadre
 from tornei.draft12 import run as run_draft12
 from tornei.draft16 import run as run_draft16
-#from tornei.draft16_misto import run as run_draft16_misto
+from tornei.draft16_misto import run as run_draft16_misto
 
 # ---------------------------------------------------------
 # SIDEBAR iOS STYLE
@@ -161,4 +161,5 @@ else:
             <div class="mobile-card-title">Draft misto</div>
         </div>
         """, unsafe_allow_html=True)
+
 
