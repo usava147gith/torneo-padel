@@ -117,7 +117,7 @@ def run():
     st.header("Draft 12 giocatori")
 
     # ---------------------------------------------------------
-    # CARICAMENTO TORNEO
+    # CARICAMENTO TORNEO (UNICO IN ALTO)
     # ---------------------------------------------------------
     uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
     if uploaded:
@@ -155,23 +155,6 @@ def run():
     # FASE 2 — GIOCATORI CONFERMATI
     # ---------------------------------------------------------
     giocatori = st.session_state.draft12_giocatori
-
-    # ---------------------------------------------------------
-    # TOOLBAR IN ALTO (UI SOLA)
-    # ---------------------------------------------------------
-    colA, colB, colC, colD = st.columns(4)
-
-    with colA:
-        click_rigenera = st.button("🔄 Rigenera torneo")
-
-    with colB:
-        click_salva = st.button("💾 Salva torneo (sopra)")
-
-    with colC:
-        click_carica = st.button("📂 Carica torneo (sopra)")
-
-    with colD:
-        click_export = st.button("📊 Esporta Excel (sopra)")
 
     # ---------------------------------------------------------
     # GENERA CALENDARIO
@@ -220,6 +203,22 @@ def run():
     st.dataframe(df_cal, use_container_width=True)
 
     # ---------------------------------------------------------
+    # TOOLBAR (ORA QUI, FUNZIONANTE)
+    # ---------------------------------------------------------
+    st.subheader("Azioni torneo")
+
+    colA, colB, colC = st.columns(3)
+
+    with colA:
+        click_rigenera = st.button("🔄 Rigenera torneo")
+
+    with colB:
+        click_salva = st.button("💾 Salva torneo")
+
+    with colC:
+        click_export = st.button("📊 Esporta Excel")
+
+    # ---------------------------------------------------------
     # METRICHE
     # ---------------------------------------------------------
     st.subheader("Metriche")
@@ -239,8 +238,11 @@ def run():
     render_classifica(df_classifica)
 
     # ---------------------------------------------------------
-    # SALVATAGGIO (pulsanti in basso)
+    # SALVATAGGIO
     # ---------------------------------------------------------
+    if click_salva:
+        st.session_state.show_save = True
+
     if st.session_state.get("show_save", False):
         data = {
             "giocatori": giocatori,
@@ -255,8 +257,11 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # EXPORT EXCEL (pulsanti in basso)
+    # EXPORT EXCEL
     # ---------------------------------------------------------
+    if click_export:
+        st.session_state.show_export = True
+
     if st.session_state.get("show_export", False):
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
@@ -273,20 +278,8 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # LOGICA FINALE DEI PULSANTI IN ALTO (FUNZIONANTE)
+    # RIGENERA TORNEO
     # ---------------------------------------------------------
     if click_rigenera:
         st.session_state.clear()
-        st.rerun()
-
-    if click_salva:
-        st.session_state.show_save = True
-        st.rerun()
-
-    if click_carica:
-        st.session_state.show_load = True
-        st.rerun()
-
-    if click_export:
-        st.session_state.show_export = True
         st.rerun()
