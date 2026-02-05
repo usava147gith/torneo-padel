@@ -5,6 +5,8 @@ import json
 from io import BytesIO
 from .logiche.logica_draft16_misto import solve_draft16_misto
 
+st.write("DEBUG: draft16_misto caricato")
+
 # ---------------------------------------------------------
 # COMPONENTI GRAFICI
 # ---------------------------------------------------------
@@ -255,4 +257,5 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
+
 
