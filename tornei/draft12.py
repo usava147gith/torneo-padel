@@ -34,6 +34,8 @@ def render_classifica(df):
         """,
             unsafe_allow_html=True,
         )
+
+
 # ---------------------------------------------------------
 # METRICHE
 # ---------------------------------------------------------
@@ -106,6 +108,11 @@ def calcola_classifica(df_cal, names):
     df = pd.DataFrame.from_dict(classifica, orient="index")
     df.index.name = "Giocatore"
     return df.sort_values(by=["Punti", "Diff_game", "Game_vinti"], ascending=False)
+
+
+# ---------------------------------------------------------
+# UI PRINCIPALE
+# ---------------------------------------------------------
 def run():
     st.header("Draft 12 giocatori")
 
@@ -119,6 +126,7 @@ def run():
         st.session_state.draft12_risultati = data["risultati"]
         st.session_state.draft12_giocatori = data["giocatori"]
         st.success("Torneo caricato!")
+
     # ---------------------------------------------------------
     # FASE 1 — INSERIMENTO GIOCATORI
     # ---------------------------------------------------------
@@ -142,6 +150,7 @@ def run():
             st.rerun()
 
         st.stop()
+
     giocatori = st.session_state.draft12_giocatori
 
     # ---------------------------------------------------------
@@ -179,19 +188,30 @@ def run():
     # ---------------------------------------------------------
     st.subheader("Partite (card)")
     for _, row in df_cal.iterrows():
-        col1, col2, col3, col4, col5 = st.columns([1,1,3,3,2])
-
+        col1, col2, col3, col4, col5 = st.columns([1, 1, 3, 3, 2])
         col1.write(f"Turno {row['Turno']}")
         col2.write(f"Campo {row['Campo']}")
         col3.write(row["Coppia A"])
         col4.write(row["Coppia B"])
         col5.write(row["Risultato"] or "—")
 
-
     st.subheader("Calendario (tabella)")
     st.dataframe(df_cal, use_container_width=True)
+
     # ---------------------------------------------------------
-    # TOOLBAR DEFINITIVA (ONE-CLICK, SENZA FLAG)
+    # METRICHE
+    # ---------------------------------------------------------
+    st.subheader("Metriche")
+    df_comp, df_avv = calcola_metriche(df_cal, giocatori)
+
+    st.markdown("#### Compagni")
+    st.dataframe(df_comp.style.background_gradient(cmap="Blues"))
+
+    st.markdown("#### Avversari")
+    st.dataframe(df_avv.style.background_gradient(cmap="Oranges"))
+
+    # ---------------------------------------------------------
+    # TOOLBAR DEFINITIVA (ONE-CLICK)
     # ---------------------------------------------------------
     st.subheader("Azioni torneo")
 
@@ -203,7 +223,7 @@ def run():
             st.session_state.clear()
             st.rerun()
 
-    # 💾 SALVA TORNEO (DOWNLOAD DIRETTO)
+    # 💾 SALVA TORNEO
     with colB:
         data = {
             "giocatori": giocatori,
@@ -218,7 +238,7 @@ def run():
             key="download_json",
         )
 
-    # 📊 ESPORTA EXCEL (DOWNLOAD DIRETTO)
+    # 📊 ESPORTA EXCEL
     with colC:
         output = BytesIO()
         with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
@@ -236,21 +256,8 @@ def run():
         )
 
     # ---------------------------------------------------------
-    # METRICHE
-    # ---------------------------------------------------------
-    st.subheader("Metriche")
-    df_comp, df_avv = calcola_metriche(df_cal, giocatori)
-
-    st.markdown("#### Compagni")
-    st.dataframe(df_comp.style.background_gradient(cmap="Blues"))
-
-    st.markdown("#### Avversari")
-    st.dataframe(df_avv.style.background_gradient(cmap="Oranges"))
-
-    # ---------------------------------------------------------
     # CLASSIFICA
     # ---------------------------------------------------------
     st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
     render_classifica(df_classifica)
-    
