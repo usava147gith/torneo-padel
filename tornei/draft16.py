@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
-from .logiche.logica_draft16 import solve_draft16
+from logiche.logica_draft16 import solve_draft16
 
 
 # ---------------------------------------------------------
