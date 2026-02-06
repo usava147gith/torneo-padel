@@ -147,20 +147,30 @@ def add_constraints_v7_5(model, x, n_turns: int):
         for j in range(i + 1, N_PLAYERS):
             model.Add(opp[i][j] <= max_opp)
 
-    # ➜ NUOVO VINCOLO CHIAVE: deviazione da 1 compagno
-    dev = {}
+    # ➜ NUOVO VINCOLO: deviazione compagni
+    dev_comp = {}
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
-            d = model.NewIntVar(0, n_turns, f"dev_{i}_{j}")
+            d = model.NewIntVar(0, n_turns, f"dev_comp_{i}_{j}")
             model.Add(d >= comp[i][j] - 1)
             model.Add(d >= 1 - comp[i][j])
-            dev[(i, j)] = d
+            dev_comp[(i, j)] = d
 
-    # ➜ NUOVA FUNZIONE OBIETTIVO (priorità assoluta ai compagni)
+    # ➜ NUOVO VINCOLO: penalità avversari ripetuti 3 volte
+    opp_dev = {}
+    for i in range(N_PLAYERS):
+        for j in range(i + 1, N_PLAYERS):
+            d = model.NewIntVar(0, n_turns, f"opp_dev_{i}_{j}")
+            model.Add(d >= opp[i][j] - 2)
+            model.Add(d >= 0)
+            opp_dev[(i, j)] = d
+
+    # ➜ NUOVA FUNZIONE OBIETTIVO
     model.Minimize(
-        500 * sum(dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        20 * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        5 * max_opp
+        500 * sum(dev_comp[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        80  * sum(opp_dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        20  * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        5   * max_opp
     )
 
     return pair
