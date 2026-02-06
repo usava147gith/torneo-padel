@@ -86,23 +86,33 @@ def add_constraints_stable(model, x, n_turns: int):
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
-    # STESSO GRUPPO
+        # STESSO GRUPPO
     same_group = {}
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
             for t in range(n_turns):
                 sg = model.NewBoolVar(f"same_group_{p1}_{p2}_t{t}")
                 aux = []
-
                 for g in range(N_GROUPS):
                     a = model.NewBoolVar(f"sg_aux_{p1}_{p2}_t{t}_g{g}")
                     model.Add(a <= x[p1, t, g])
                     model.Add(a <= x[p2, t, g])
                     model.Add(a >= x[p1, t, g] + x[p2, t, g] - 1)
                     aux.append(a)
-
                 model.AddMaxEquality(sg, aux)
                 same_group[(p1, p2, t)] = sg
+
+    # COMPAGNI PER TURNO
+    teammate_turn = {}
+    for p1 in range(N_PLAYERS):
+        for p2 in range(p1 + 1, N_PLAYERS):
+            for t in range(n_turns):
+                tt = model.NewBoolVar(f"tm_turn_{p1}_{p2}_t{t}")
+                aux = []
+                for g in range(N_GROUPS):
+                    aux.append(pair[(p1, p2, t, g)])
+                model.AddMaxEquality(tt, aux)
+                teammate_turn[(p1, p2, t)] = tt
 
     # AVVERSARI PER TURNO
     opponent_turn = {}
@@ -110,12 +120,10 @@ def add_constraints_stable(model, x, n_turns: int):
         for p2 in range(p1 + 1, N_PLAYERS):
             for t in range(n_turns):
                 opp_t = model.NewBoolVar(f"opp_turn_{p1}_{p2}_t{t}")
-
                 sg = same_group[(p1, p2, t)]
-                tt = 0
-                for g in range(N_GROUPS):
-                    tt = tt or pair[(p1, p2, t, g)]
+                tt = teammate_turn[(p1, p2, t)]
 
+                # avversari = stesso gruppo ma NON compagni
                 model.AddBoolAnd([sg, tt.Not()]).OnlyEnforceIf(opp_t)
                 model.AddBoolOr([sg.Not(), tt]).OnlyEnforceIf(opp_t.Not())
 
@@ -133,7 +141,8 @@ def add_constraints_stable(model, x, n_turns: int):
                 sum(opponent_turn[(p1, p2, t)] for t in range(n_turns))
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
-    # DEVIAZIONE COMPAGNI (dev_comp)
+
+    # DEVIAZIONE COMPAGNI
     dev_comp = {}
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
