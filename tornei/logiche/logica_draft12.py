@@ -77,7 +77,9 @@ def add_constraints_v7_5(model, x, n_turns: int):
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
-    max_comp = model.NewIntVar(0, 1, "max_comp")
+    # Vincoli dinamici in base al numero di turni
+    max_comp = model.NewIntVar(0, 1 if n_turns == 8 else 2, "max_comp")
+
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
             model.Add(comp[i][j] <= max_comp)
@@ -141,7 +143,7 @@ def add_constraints_v7_5(model, x, n_turns: int):
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
 
-    max_opp = model.NewIntVar(0, 2, "max_opp")
+    max_opp = model.NewIntVar(0, 2 if n_turns == 8 else 3, "max_opp")
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
             model.Add(opp[i][j] <= max_opp)
