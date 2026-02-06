@@ -8,23 +8,28 @@ N_GROUPS = N_PLAYERS // GROUP_SIZE
 def build_model(n_turns: int):
     model = cp_model.CpModel()
     x = {}
+
     for p in range(N_PLAYERS):
         for t in range(n_turns):
             for g in range(N_GROUPS):
                 x[p, t, g] = model.NewBoolVar(f"x_p{p}_t{t}_g{g}")
 
+    # Ogni giocatore gioca esattamente in un gruppo per turno
     for p in range(N_PLAYERS):
         for t in range(n_turns):
             model.Add(sum(x[p, t, g] for g in range(N_GROUPS)) == 1)
 
+    # Ogni gruppo ha esattamente 4 giocatori
     for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(sum(x[p, t, g] for p in range(N_PLAYERS)) == GROUP_SIZE)
 
     return model, x
 
+
 def build_pair_vars(model, x, n_turns: int):
     pair = {}
+
     for t in range(n_turns):
         for g in range(N_GROUPS):
             for p1 in range(N_PLAYERS):
@@ -33,12 +38,14 @@ def build_pair_vars(model, x, n_turns: int):
                     pair[(p1, p2, t, g)] = b
                     model.Add(b <= x[p1, t, g])
                     model.Add(b <= x[p2, t, g])
+
     return pair
+
 
 def add_constraints_v7_5(model, x, n_turns: int):
     pair = build_pair_vars(model, x, n_turns)
 
-    # Coppie per turno
+    # Ogni giocatore ha esattamente 1 compagno nel gruppo
     for t in range(n_turns):
         for g in range(N_GROUPS):
             for p in range(N_PLAYERS):
@@ -51,19 +58,19 @@ def add_constraints_v7_5(model, x, n_turns: int):
                 model.Add(sum(involved) == 1).OnlyEnforceIf(x[p, t, g])
                 model.Add(sum(involved) == 0).OnlyEnforceIf(x[p, t, g].Not())
 
+    # Ogni gruppo ha esattamente 2 coppie
     for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(
                 sum(pair[(i, j, t, g)]
                     for i in range(N_PLAYERS)
-                    for j in range(i + 1, N_PLAYERS))
-                == 2
+                    for j in range(i + 1, N_PLAYERS)) == 2
             )
 
     # Numero di volte compagni
     comp = [[model.NewIntVar(0, n_turns, f"comp_{i}_{j}")
              for j in range(N_PLAYERS)]
-             for i in range(N_PLAYERS)]
+            for i in range(N_PLAYERS)]
 
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
@@ -140,27 +147,7 @@ def add_constraints_v7_5(model, x, n_turns: int):
         for j in range(i + 1, N_PLAYERS):
             model.Add(opp[i][j] <= max_opp)
 
-    # Avversari distinti
-    distinct_opp = [
-        model.NewIntVar(0, N_PLAYERS - 1, f"distinct_opp_{i}")
-        for i in range(N_PLAYERS)
-    ]
-
-    for i in range(N_PLAYERS):
-        bools = []
-        for j in range(N_PLAYERS):
-            if i == j:
-                continue
-            b = model.NewBoolVar(f"has_opp_{i}_{j}")
-            model.Add(opp[i][j] >= 1).OnlyEnforceIf(b)
-            model.Add(opp[i][j] == 0).OnlyEnforceIf(b.Not())
-            bools.append(b)
-        model.Add(distinct_opp[i] == sum(bools))
-
-    min_distinct = model.NewIntVar(0, N_PLAYERS - 1, "min_distinct")
-    model.AddMinEquality(min_distinct, distinct_opp)
-
-    # ➜ NUOVO VINCOLO: equilibrio compagni
+    # ➜ NUOVO VINCOLO CHIAVE: deviazione da 1 compagno
     dev = {}
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
@@ -169,15 +156,15 @@ def add_constraints_v7_5(model, x, n_turns: int):
             model.Add(d >= 1 - comp[i][j])
             dev[(i, j)] = d
 
-    # Funzione obiettivo
+    # ➜ NUOVA FUNZIONE OBIETTIVO (priorità assoluta ai compagni)
     model.Minimize(
-        200 * max_opp +
-        20 * sum(dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        5 * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) -
-        40 * min_distinct
+        500 * sum(dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        20 * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        5 * max_opp
     )
 
     return pair
+
 
 def solve_draft12(names, num_turni: int = 8):
     if len(names) != N_PLAYERS:
