@@ -2,31 +2,32 @@ from ortools.sat.python import cp_model
 import pandas as pd
 
 N_PLAYERS = 12
-N_TURNS = 8
 GROUP_SIZE = 4
 N_GROUPS = N_PLAYERS // GROUP_SIZE
 
-def build_model():
+def build_model(n_turns: int):
     model = cp_model.CpModel()
     x = {}
     for p in range(N_PLAYERS):
-        for t in range(N_TURNS):
+        for t in range(n_turns):
             for g in range(N_GROUPS):
                 x[p, t, g] = model.NewBoolVar(f"x_p{p}_t{t}_g{g}")
 
+    # Ogni giocatore è in esattamente un gruppo per turno
     for p in range(N_PLAYERS):
-        for t in range(N_TURNS):
+        for t in range(n_turns):
             model.Add(sum(x[p, t, g] for g in range(N_GROUPS)) == 1)
 
-    for t in range(N_TURNS):
+    # Ogni gruppo ha esattamente GROUP_SIZE giocatori per turno
+    for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(sum(x[p, t, g] for p in range(N_PLAYERS)) == GROUP_SIZE)
 
     return model, x
 
-def build_pair_vars(model, x):
+def build_pair_vars(model, x, n_turns: int):
     pair = {}
-    for t in range(N_TURNS):
+    for t in range(n_turns):
         for g in range(N_GROUPS):
             for p1 in range(N_PLAYERS):
                 for p2 in range(p1 + 1, N_PLAYERS):
@@ -36,10 +37,11 @@ def build_pair_vars(model, x):
                     model.Add(b <= x[p2, t, g])
     return pair
 
-def add_constraints_v7_5(model, x):
-    pair = build_pair_vars(model, x)
+def add_constraints_v7_5(model, x, n_turns: int):
+    pair = build_pair_vars(model, x, n_turns)
 
-    for t in range(N_TURNS):
+    # Ogni giocatore in un gruppo ha esattamente 1 compagno (2 coppie per gruppo)
+    for t in range(n_turns):
         for g in range(N_GROUPS):
             for p in range(N_PLAYERS):
                 involved = []
@@ -51,7 +53,7 @@ def add_constraints_v7_5(model, x):
                 model.Add(sum(involved) == 1).OnlyEnforceIf(x[p, t, g])
                 model.Add(sum(involved) == 0).OnlyEnforceIf(x[p, t, g].Not())
 
-    for t in range(N_TURNS):
+    for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(
                 sum(pair[(i, j, t, g)]
@@ -60,7 +62,8 @@ def add_constraints_v7_5(model, x):
                 == 2
             )
 
-    comp = [[model.NewIntVar(0, N_TURNS, f"comp_{i}_{j}")
+    # Numero di volte compagni
+    comp = [[model.NewIntVar(0, n_turns, f"comp_{i}_{j}")
              for j in range(N_PLAYERS)]
              for i in range(N_PLAYERS)]
 
@@ -69,7 +72,7 @@ def add_constraints_v7_5(model, x):
             model.Add(
                 comp[p1][p2] ==
                 sum(pair[(p1, p2, t, g)]
-                    for t in range(N_TURNS)
+                    for t in range(n_turns)
                     for g in range(N_GROUPS))
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
@@ -79,10 +82,11 @@ def add_constraints_v7_5(model, x):
         for j in range(i + 1, N_PLAYERS):
             model.Add(comp[i][j] <= max_comp)
 
+    # Stesso gruppo
     same_group = {}
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
-            for t in range(N_TURNS):
+            for t in range(n_turns):
                 sg = model.NewBoolVar(f"same_group_{p1}_{p2}_{t}")
                 aux = []
                 for g in range(N_GROUPS):
@@ -97,10 +101,11 @@ def add_constraints_v7_5(model, x):
                     model.Add(sg == 0)
                 same_group[(p1, p2, t)] = sg
 
+    # Compagni per turno
     teammate_turn = {}
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
-            for t in range(N_TURNS):
+            for t in range(n_turns):
                 tt = model.NewBoolVar(f"tm_turn_{p1}_{p2}_{t}")
                 aux = []
                 for g in range(N_GROUPS):
@@ -111,10 +116,11 @@ def add_constraints_v7_5(model, x):
                     model.Add(tt == 0)
                 teammate_turn[(p1, p2, t)] = tt
 
+    # Avversari per turno
     opponent_turn = {}
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
-            for t in range(N_TURNS):
+            for t in range(n_turns):
                 opp_t = model.NewBoolVar(f"opp_turn_{p1}_{p2}_{t}")
                 sg = same_group[(p1, p2, t)]
                 tt = teammate_turn[(p1, p2, t)]
@@ -122,7 +128,8 @@ def add_constraints_v7_5(model, x):
                 model.AddBoolOr([sg.Not(), tt]).OnlyEnforceIf(opp_t.Not())
                 opponent_turn[(p1, p2, t)] = opp_t
 
-    opp = [[model.NewIntVar(0, N_TURNS, f"opp_{i}_{j}")
+    # Numero di volte avversari
+    opp = [[model.NewIntVar(0, n_turns, f"opp_{i}_{j}")
             for j in range(N_PLAYERS)]
             for i in range(N_PLAYERS)]
 
@@ -130,7 +137,7 @@ def add_constraints_v7_5(model, x):
         for p2 in range(p1 + 1, N_PLAYERS):
             model.Add(
                 opp[p1][p2] ==
-                sum(opponent_turn[(p1, p2, t)] for t in range(N_TURNS))
+                sum(opponent_turn[(p1, p2, t)] for t in range(n_turns))
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
 
@@ -139,6 +146,7 @@ def add_constraints_v7_5(model, x):
         for j in range(i + 1, N_PLAYERS):
             model.Add(opp[i][j] <= max_opp)
 
+    # Numero di avversari distinti per giocatore
     distinct_opp = [
         model.NewIntVar(0, N_PLAYERS - 1, f"distinct_opp_{i}")
         for i in range(N_PLAYERS)
@@ -158,6 +166,7 @@ def add_constraints_v7_5(model, x):
     min_distinct = model.NewIntVar(0, N_PLAYERS - 1, "min_distinct")
     model.AddMinEquality(min_distinct, distinct_opp)
 
+    # Quante volte ho esattamente 2 incontri con lo stesso avversario
     two_count = [
         model.NewIntVar(0, N_PLAYERS, f"two_count_{i}")
         for i in range(N_PLAYERS)
@@ -174,6 +183,8 @@ def add_constraints_v7_5(model, x):
             flags.append(b)
         model.Add(two_count[i] == sum(flags))
 
+    # Funzione obiettivo: minimizza max_opp, le coppie ripetute, gli incontri totali
+    # e massimizza il numero di avversari distinti
     model.Minimize(
         200 * max_opp +
         20 * sum(two_count[i] for i in range(N_PLAYERS)) +
@@ -183,12 +194,15 @@ def add_constraints_v7_5(model, x):
 
     return pair
 
-def solve_draft12(names):
+def solve_draft12(names, num_turni: int = 8):
     if len(names) != N_PLAYERS:
         raise ValueError(f"Servono esattamente {N_PLAYERS} nomi.")
 
-    model, x = build_model()
-    pair = add_constraints_v7_5(model, x)
+    if num_turni < 1:
+        raise ValueError("Il numero di turni deve essere almeno 1.")
+
+    model, x = build_model(num_turni)
+    pair = add_constraints_v7_5(model, x, num_turni)
 
     solver = cp_model.CpSolver()
     solver.parameters.max_time_in_seconds = 300
@@ -199,7 +213,7 @@ def solve_draft12(names):
         raise RuntimeError("Nessuna soluzione trovata per il draft 12.")
 
     rows = []
-    for t in range(N_TURNS):
+    for t in range(num_turni):
         for g in range(N_GROUPS):
             coppie = []
             for p1 in range(N_PLAYERS):
