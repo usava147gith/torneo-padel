@@ -153,11 +153,13 @@ def run():
 
     giocatori = st.session_state.draft12_giocatori
 
+    num_turni = st.selectbox("Numero di turni", [8, 11], index=0)
+
     # ---------------------------------------------------------
     # GENERA CALENDARIO
     # ---------------------------------------------------------
     if st.button("Genera calendario draft 12"):
-        st.session_state.draft12_calendario = solve_draft12(giocatori)
+        st.session_state.draft12_calendario = solve_draft12(giocatori, num_turni)
         st.session_state.draft12_risultati = [""] * len(st.session_state.draft12_calendario)
 
     if "draft12_calendario" not in st.session_state:
@@ -261,4 +263,3 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
-
