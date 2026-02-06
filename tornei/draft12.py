@@ -23,6 +23,7 @@ def render_match_card(turno, campo, coppiaA, coppiaB, risultato):
     )
 
 
+
 def render_classifica(df):
     for player, row in df.iterrows():
         st.markdown(
@@ -215,9 +216,12 @@ def run():
     # ---------------------------------------------------------
     # CLASSIFICA
     # ---------------------------------------------------------
-    st.subheader("Classifica")
+    st.subheader("🏆 Classifica")
+
     df_classifica = calcola_classifica(df_cal, giocatori)
-    render_classifica(df_classifica)
+
+    # Tabella leggibile con CSS migliorato
+    st.dataframe(df_classifica, use_container_width=True)
 
     # ---------------------------------------------------------
     # TOOLBAR (ONE-CLICK)
