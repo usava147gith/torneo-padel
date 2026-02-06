@@ -7,6 +7,7 @@ N_PLAYERS = 12
 GROUP_SIZE = 4
 N_GROUPS = N_PLAYERS // GROUP_SIZE
 
+
 def build_model(n_turns: int):
     model = cp_model.CpModel()
     x = {}
@@ -28,6 +29,8 @@ def build_model(n_turns: int):
             model.Add(sum(x[p, t, g] for p in range(N_PLAYERS)) == GROUP_SIZE)
 
     return model, x
+
+
 def build_pair_vars(model, x, n_turns: int):
     pair = {}
 
@@ -45,6 +48,7 @@ def build_pair_vars(model, x, n_turns: int):
 
 
 def add_constraints_stable(model, x, n_turns: int):
+    print(">>> ESEGUO add_constraints_stable VERSIONE CORRETTA")
     pair = build_pair_vars(model, x, n_turns)
 
     # Ogni giocatore ha 1 compagno nel gruppo
@@ -70,8 +74,7 @@ def add_constraints_stable(model, x, n_turns: int):
                     for j in range(i + 1, N_PLAYERS)) == 2
             )
 
-    return pair
-        # COMPAGNI TOTALI
+    # COMPAGNI TOTALI
     comp = [[model.NewIntVar(0, n_turns, f"comp_{i}_{j}")
              for j in range(N_PLAYERS)]
             for i in range(N_PLAYERS)]
@@ -168,7 +171,6 @@ def add_constraints_stable(model, x, n_turns: int):
     )
 
     return pair
-
 
 
 def solve_draft12(names, num_turni: int = 8):
