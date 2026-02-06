@@ -13,12 +13,10 @@ def build_model(n_turns: int):
             for g in range(N_GROUPS):
                 x[p, t, g] = model.NewBoolVar(f"x_p{p}_t{t}_g{g}")
 
-    # Ogni giocatore è in esattamente un gruppo per turno
     for p in range(N_PLAYERS):
         for t in range(n_turns):
             model.Add(sum(x[p, t, g] for g in range(N_GROUPS)) == 1)
 
-    # Ogni gruppo ha esattamente GROUP_SIZE giocatori per turno
     for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(sum(x[p, t, g] for p in range(N_PLAYERS)) == GROUP_SIZE)
@@ -40,7 +38,7 @@ def build_pair_vars(model, x, n_turns: int):
 def add_constraints_v7_5(model, x, n_turns: int):
     pair = build_pair_vars(model, x, n_turns)
 
-    # Ogni giocatore in un gruppo ha esattamente 1 compagno (2 coppie per gruppo)
+    # Coppie per turno
     for t in range(n_turns):
         for g in range(N_GROUPS):
             for p in range(N_PLAYERS):
@@ -77,8 +75,9 @@ def add_constraints_v7_5(model, x, n_turns: int):
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
-    # Vincoli dinamici in base al numero di turni
+    # Vincoli dinamici
     max_comp = model.NewIntVar(0, 1 if n_turns == 8 else 2, "max_comp")
+    max_opp = model.NewIntVar(0, 2 if n_turns == 8 else 3, "max_opp")
 
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
@@ -97,10 +96,7 @@ def add_constraints_v7_5(model, x, n_turns: int):
                     model.Add(a <= x[p2, t, g])
                     model.Add(a >= x[p1, t, g] + x[p2, t, g] - 1)
                     aux.append(a)
-                if aux:
-                    model.AddMaxEquality(sg, aux)
-                else:
-                    model.Add(sg == 0)
+                model.AddMaxEquality(sg, aux)
                 same_group[(p1, p2, t)] = sg
 
     # Compagni per turno
@@ -112,10 +108,7 @@ def add_constraints_v7_5(model, x, n_turns: int):
                 aux = []
                 for g in range(N_GROUPS):
                     aux.append(pair[(p1, p2, t, g)])
-                if aux:
-                    model.AddMaxEquality(tt, aux)
-                else:
-                    model.Add(tt == 0)
+                model.AddMaxEquality(tt, aux)
                 teammate_turn[(p1, p2, t)] = tt
 
     # Avversari per turno
@@ -143,12 +136,11 @@ def add_constraints_v7_5(model, x, n_turns: int):
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
 
-    max_opp = model.NewIntVar(0, 2 if n_turns == 8 else 3, "max_opp")
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
             model.Add(opp[i][j] <= max_opp)
 
-    # Numero di avversari distinti per giocatore
+    # Avversari distinti
     distinct_opp = [
         model.NewIntVar(0, N_PLAYERS - 1, f"distinct_opp_{i}")
         for i in range(N_PLAYERS)
@@ -168,28 +160,19 @@ def add_constraints_v7_5(model, x, n_turns: int):
     min_distinct = model.NewIntVar(0, N_PLAYERS - 1, "min_distinct")
     model.AddMinEquality(min_distinct, distinct_opp)
 
-    # Quante volte ho esattamente 2 incontri con lo stesso avversario
-    two_count = [
-        model.NewIntVar(0, N_PLAYERS, f"two_count_{i}")
-        for i in range(N_PLAYERS)
-    ]
-
+    # ➜ NUOVO VINCOLO: equilibrio compagni
+    dev = {}
     for i in range(N_PLAYERS):
-        flags = []
-        for j in range(N_PLAYERS):
-            if i == j:
-                continue
-            b = model.NewBoolVar(f"opp2_{i}_{j}")
-            model.Add(opp[i][j] == 2).OnlyEnforceIf(b)
-            model.Add(opp[i][j] != 2).OnlyEnforceIf(b.Not())
-            flags.append(b)
-        model.Add(two_count[i] == sum(flags))
+        for j in range(i + 1, N_PLAYERS):
+            d = model.NewIntVar(0, n_turns, f"dev_{i}_{j}")
+            model.Add(d >= comp[i][j] - 1)
+            model.Add(d >= 1 - comp[i][j])
+            dev[(i, j)] = d
 
-    # Funzione obiettivo: minimizza max_opp, le coppie ripetute, gli incontri totali
-    # e massimizza il numero di avversari distinti
+    # Funzione obiettivo
     model.Minimize(
         200 * max_opp +
-        20 * sum(two_count[i] for i in range(N_PLAYERS)) +
+        20 * sum(dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
         5 * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) -
         40 * min_distinct
     )
@@ -199,9 +182,6 @@ def add_constraints_v7_5(model, x, n_turns: int):
 def solve_draft12(names, num_turni: int = 8):
     if len(names) != N_PLAYERS:
         raise ValueError(f"Servono esattamente {N_PLAYERS} nomi.")
-
-    if num_turni < 1:
-        raise ValueError("Il numero di turni deve essere almeno 1.")
 
     model, x = build_model(num_turni)
     pair = add_constraints_v7_5(model, x, num_turni)
@@ -232,5 +212,4 @@ def solve_draft12(names, num_turni: int = 8):
                 "Coppia B": f"{names[b1]} & {names[b2]}",
             })
 
-    df = pd.DataFrame(rows)
-    return df
+    return pd.DataFrame(rows)
