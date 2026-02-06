@@ -51,6 +51,8 @@ def add_constraints_stable(model, x, n_turns: int):
     print(">>> ESEGUO add_constraints_stable VERSIONE CORRETTA")
     pair = build_pair_vars(model, x, n_turns)
 
+print(">>> add_constraints_stable ESEGUITA")
+
     # Ogni giocatore ha 1 compagno nel gruppo
     for t in range(n_turns):
         for g in range(N_GROUPS):
