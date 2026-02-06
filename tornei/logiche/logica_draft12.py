@@ -1,4 +1,4 @@
-print("USO VERSIONE STABILE v8.0")
+print("USO VERSIONE STABILE v8.1")
 
 from ortools.sat.python import cp_model
 import pandas as pd
@@ -8,22 +8,24 @@ GROUP_SIZE = 4
 N_GROUPS = N_PLAYERS // GROUP_SIZE
 
 
+# ---------------------------------------------------------
+# MODEL BASE
+# ---------------------------------------------------------
 def build_model(n_turns: int):
     model = cp_model.CpModel()
     x = {}
 
-    # x[p, t, g] = 1 se il giocatore p è nel gruppo g al turno t
     for p in range(N_PLAYERS):
         for t in range(n_turns):
             for g in range(N_GROUPS):
                 x[p, t, g] = model.NewBoolVar(f"x_p{p}_t{t}_g{g}")
 
-    # Ogni giocatore gioca in un solo gruppo per turno
+    # 1 gruppo per turno
     for p in range(N_PLAYERS):
         for t in range(n_turns):
             model.Add(sum(x[p, t, g] for g in range(N_GROUPS)) == 1)
 
-    # Ogni gruppo ha esattamente 4 giocatori
+    # 4 giocatori per gruppo
     for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(sum(x[p, t, g] for p in range(N_PLAYERS)) == GROUP_SIZE)
@@ -31,6 +33,9 @@ def build_model(n_turns: int):
     return model, x
 
 
+# ---------------------------------------------------------
+# PAIR VARS
+# ---------------------------------------------------------
 def build_pair_vars(model, x, n_turns: int):
     pair = {}
 
@@ -47,13 +52,14 @@ def build_pair_vars(model, x, n_turns: int):
     return pair
 
 
+# ---------------------------------------------------------
+# VINCOLI STABILI
+# ---------------------------------------------------------
 def add_constraints_stable(model, x, n_turns: int):
     print(">>> ESEGUO add_constraints_stable VERSIONE CORRETTA")
     pair = build_pair_vars(model, x, n_turns)
 
-print(">>> add_constraints_stable ESEGUITA")
-
-    # Ogni giocatore ha 1 compagno nel gruppo
+    # 1 compagno per turno
     for t in range(n_turns):
         for g in range(N_GROUPS):
             for p in range(N_PLAYERS):
@@ -67,7 +73,7 @@ print(">>> add_constraints_stable ESEGUITA")
                 model.Add(sum(comp_list) == 1).OnlyEnforceIf(x[p, t, g])
                 model.Add(sum(comp_list) == 0).OnlyEnforceIf(x[p, t, g].Not())
 
-    # Ogni gruppo ha esattamente 2 coppie
+    # 2 coppie per gruppo
     for t in range(n_turns):
         for g in range(N_GROUPS):
             model.Add(
@@ -91,6 +97,10 @@ print(">>> add_constraints_stable ESEGUITA")
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
+    # VINCOLO DURO: massimo 1 compagno totale
+    for p1 in range(N_PLAYERS):
+        for p2 in range(p1 + 1, N_PLAYERS):
+            model.Add(comp[p1][p2] <= 1)
 
     # STESSO GRUPPO
     same_group = {}
@@ -129,7 +139,6 @@ print(">>> add_constraints_stable ESEGUITA")
                 sg = same_group[(p1, p2, t)]
                 tt = teammate_turn[(p1, p2, t)]
 
-                # avversari = stesso gruppo ma NON compagni
                 model.AddBoolAnd([sg, tt.Not()]).OnlyEnforceIf(opp_t)
                 model.AddBoolOr([sg.Not(), tt]).OnlyEnforceIf(opp_t.Not())
 
@@ -147,54 +156,31 @@ print(">>> add_constraints_stable ESEGUITA")
                 sum(opponent_turn[(p1, p2, t)] for t in range(n_turns))
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
-            
-    # VINCOLO DURO: massimo 3 avversari per coppia
+
+    # VINCOLO DURO: massimo 3 avversari totali
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
             model.Add(opp[p1][p2] <= 3)
-            
-    # VINCOLO DURO: massimo 1 compagno per coppia su tutto il torneo
-    for p1 in range(N_PLAYERS):
-        for p2 in range(p1 + 1, N_PLAYERS):
-            model.Add(comp[p1][p2] <= 1)
-            
-    # DEVIAZIONE COMPAGNI
-    dev_comp = {}
-    for i in range(N_PLAYERS):
-        for j in range(i + 1, N_PLAYERS):
-            d = model.NewIntVar(0, n_turns, f"dev_comp_{i}_{j}")
-            model.Add(d >= comp[i][j] - 1)
-            model.Add(d >= 1 - comp[i][j])
-            dev_comp[(i, j)] = d
 
-    # PENALITÀ AVVERSARI RIPETUTI 3 VOLTE
-    opp_dev = {}
-    for i in range(N_PLAYERS):
-        for j in range(i + 1, N_PLAYERS):
-            d = model.NewIntVar(0, n_turns, f"opp_dev_{i}_{j}")
-            model.Add(d >= opp[i][j] - 2)
-            model.Add(d >= 0)
-            opp_dev[(i, j)] = d
-
-    # FUNZIONE OBIETTIVO STABILE
+    # FUNZIONE OBIETTIVO (soft)
     model.Minimize(
-        800 * sum(dev_comp[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        150 * sum(opp_dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        20  * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        sum(comp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
     )
 
     return pair
 
 
+# ---------------------------------------------------------
+# SOLVER
+# ---------------------------------------------------------
 def solve_draft12(names, num_turni: int = 8):
-    if len(names) != N_PLAYERS:
-        raise ValueError(f"Servono esattamente {N_PLAYERS} nomi.")
-
+    print(">>> solve_draft12 CHIAMATO")
     model, x = build_model(num_turni)
     pair = add_constraints_stable(model, x, num_turni)
 
     solver = cp_model.CpSolver()
-    solver.parameters.max_time_in_seconds = 300
+    solver.parameters.max_time_in_seconds = 60
     solver.parameters.num_search_workers = 8
 
     result = solver.Solve(model)
@@ -205,7 +191,6 @@ def solve_draft12(names, num_turni: int = 8):
     for t in range(num_turni):
         for g in range(N_GROUPS):
             coppie = []
-
             for p1 in range(N_PLAYERS):
                 for p2 in range(p1 + 1, N_PLAYERS):
                     if solver.Value(pair[(p1, p2, t, g)]) == 1:
