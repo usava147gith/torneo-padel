@@ -71,7 +71,7 @@ def add_constraints_stable(model, x, n_turns: int):
             )
 
     return pair
-    # COMPAGNI TOTALI
+        # COMPAGNI TOTALI
     comp = [[model.NewIntVar(0, n_turns, f"comp_{i}_{j}")
              for j in range(N_PLAYERS)]
             for i in range(N_PLAYERS)]
@@ -86,7 +86,7 @@ def add_constraints_stable(model, x, n_turns: int):
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
-        # STESSO GRUPPO
+    # STESSO GRUPPO
     same_group = {}
     for p1 in range(N_PLAYERS):
         for p2 in range(p1 + 1, N_PLAYERS):
@@ -168,6 +168,7 @@ def add_constraints_stable(model, x, n_turns: int):
     )
 
     return pair
+
 
 
 def solve_draft12(names, num_turni: int = 8):
