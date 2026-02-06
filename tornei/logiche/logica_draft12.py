@@ -209,11 +209,12 @@ def add_constraints_v7_6(model, x, n_turns: int):
     # 4) Massimizzare avversari distinti (min_distinct)
 
     model.Minimize(
-        500 * sum(dev_comp[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        120 * sum(opp_dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        20  * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) -
-        200 * min_distinct
+        1000 * sum(dev_comp[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        200  * sum(opp_dev[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
+        20   * sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) -
+        40   * min_distinct
     )
+
 
     return pair
 
