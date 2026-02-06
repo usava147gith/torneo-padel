@@ -91,6 +91,7 @@ print(">>> add_constraints_stable ESEGUITA")
             )
             model.Add(comp[p2][p1] == comp[p1][p2])
 
+
     # STESSO GRUPPO
     same_group = {}
     for p1 in range(N_PLAYERS):
@@ -146,7 +147,17 @@ print(">>> add_constraints_stable ESEGUITA")
                 sum(opponent_turn[(p1, p2, t)] for t in range(n_turns))
             )
             model.Add(opp[p2][p1] == opp[p1][p2])
-
+            
+    # VINCOLO DURO: massimo 3 avversari per coppia
+    for p1 in range(N_PLAYERS):
+        for p2 in range(p1 + 1, N_PLAYERS):
+            model.Add(opp[p1][p2] <= 3)
+            
+    # VINCOLO DURO: massimo 1 compagno per coppia su tutto il torneo
+    for p1 in range(N_PLAYERS):
+        for p2 in range(p1 + 1, N_PLAYERS):
+            model.Add(comp[p1][p2] <= 1)
+            
     # DEVIAZIONE COMPAGNI
     dev_comp = {}
     for i in range(N_PLAYERS):
