@@ -1,4 +1,4 @@
-print("USO LOGICA 11 TURNI v1.0")
+print("USO LOGICA 11 TURNI v2.0")
 
 from ortools.sat.python import cp_model
 import pandas as pd
@@ -131,22 +131,44 @@ def add_constraints(model, x, n_turns):
            for i in range(N_PLAYERS)]
 
     for i in range(N_PLAYERS):
-        for j in range(i + 1, N_PLAYERS):
+        for j in range(i + 1, NPLAYERS):
             model.Add(
                 opp[i][j] ==
                 sum(opponent_turn[(i, j, t)] for t in range(n_turns))
             )
             model.Add(opp[j][i] == opp[i][j])
 
-    # VINCOLO DURO: massimo 4 avversari
+    # PENALITÀ PIECEWISE
+    pen1 = {}
+    pen2 = {}
+    pen3 = {}
+    pen4 = {}
+
     for i in range(N_PLAYERS):
         for j in range(i + 1, N_PLAYERS):
-            model.Add(opp[i][j] <= 4)
 
-    # OBIETTIVO: minimizzare ripetizioni
+            p1 = model.NewIntVar(0, n_turns, f"pen1_{i}_{j}")
+            model.Add(p1 >= opp[i][j] - 0)
+            pen1[(i, j)] = p1
+
+            p2 = model.NewIntVar(0, n_turns, f"pen2_{i}_{j}")
+            model.Add(p2 >= opp[i][j] - 1)
+            pen2[(i, j)] = p2
+
+            p3 = model.NewIntVar(0, n_turns, f"pen3_{i}_{j}")
+            model.Add(p3 >= opp[i][j] - 2)
+            pen3[(i, j)] = p3
+
+            p4 = model.NewIntVar(0, n_turns, f"pen4_{i}_{j}")
+            model.Add(p4 >= opp[i][j] - 3)
+            pen4[(i, j)] = p4
+
+    # FUNZIONE OBIETTIVO
     model.Minimize(
-        3 * sum(comp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS)) +
-        sum(opp[i][j] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+          1  * sum(pen1[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 3  * sum(pen2[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 10 * sum(pen3[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 50 * sum(pen4[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
     )
 
     return pair
