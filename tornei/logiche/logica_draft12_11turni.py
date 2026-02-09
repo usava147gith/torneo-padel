@@ -131,7 +131,7 @@ def add_constraints(model, x, n_turns):
            for i in range(N_PLAYERS)]
 
     for i in range(N_PLAYERS):
-        for j in range(i + 1, NPLAYERS):
+        for j in range(i + 1, N_PLAYERS):   # ✅ CORRETTO
             model.Add(
                 opp[i][j] ==
                 sum(opponent_turn[(i, j, t)] for t in range(n_turns))
