@@ -5,32 +5,27 @@ import streamlit as st
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Tornei Padel",
-    page_icon="🎾",
+    page_icon="icons/padel_icon.png",
     layout="wide"
 )
 
-st.set_page_config( 
-    page_title="Torneo 16 Squadre", 
-    page_icon="icons/padel_icon.png", # ← icona personalizzata 
-    layout="wide" 
-    )
-    
+# ---------------------------------------------------------
+# CSS PERSONALIZZATO
+# ---------------------------------------------------------
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
 st.markdown("""
     <style>
-    /* Etichette degli input più grandi e leggibili */
     label, .stTextInput label, .stSelectbox label {
         font-size: 1.15rem !important;
         font-weight: 600 !important;
         color: #333 !important;
     }
-
-    /* Testo dentro gli input */
     input[type="text"], input[type="number"] {
         font-size: 1.1rem !important;
         padding: 8px 10px !important;
     }
-
-    /* Selectbox */
     .stSelectbox div[data-baseweb="select"] > div {
         font-size: 1.1rem !important;
     }
@@ -39,7 +34,6 @@ st.markdown("""
 
 st.markdown("""
     <style>
-    /* Header tabella */
     .dataframe th {
         font-size: 1.2rem !important;
         font-weight: 700 !important;
@@ -47,38 +41,31 @@ st.markdown("""
         padding: 12px !important;
         text-align: center !important;
     }
-
-    /* Celle tabella */
     .dataframe td {
         font-size: 1.1rem !important;
         padding: 10px !important;
         text-align: center !important;
     }
-
-    /* Spaziatura tra le righe */
     .dataframe {
         border-collapse: separate !important;
         border-spacing: 0 8px !important;
     }
-
-    /* Effetto card sulle righe */
     .dataframe tbody tr {
         background-color: #ffffff !important;
         border-radius: 10px !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.08) !important;
     }
-
-    /* Hover */
     .dataframe tbody tr:hover {
         background-color: #fafafa !important;
     }
     </style>
 """, unsafe_allow_html=True)
 
-# 🔥 PWA
+# ---------------------------------------------------------
+# PWA
+# ---------------------------------------------------------
 st.markdown("""
 <link rel="manifest" href="manifest.json">
-
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -88,17 +75,6 @@ if ('serviceWorker' in navigator) {
 </script>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<link rel="manifest" href="manifest.json">
-
-<script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register("service-worker.js");
-    });
-}
-</script>
-""", unsafe_allow_html=True)
 # ---------------------------------------------------------
 # ONBOARDING INIZIALE (VERSIONE SICURA)
 # ---------------------------------------------------------
@@ -159,11 +135,12 @@ scelta = st.sidebar.radio(
         "Torneo a squadre",
         "Draft 12 giocatori",
         "Draft 16 giocatori",
-        "Draft misto 16 giocatori"
+        "Draft misto 16 giocatori",
         "Torneo 16 squadre (Campionato)"
     ],
     label_visibility="collapsed"
 )
+
 
 
 st.sidebar.markdown("---")
