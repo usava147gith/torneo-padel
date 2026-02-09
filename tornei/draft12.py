@@ -216,12 +216,9 @@ def run():
     # ---------------------------------------------------------
     # CLASSIFICA
     # ---------------------------------------------------------
-    st.subheader("🏆 Classifica")
-
+    st.subheader("Classifica")
     df_classifica = calcola_classifica(df_cal, giocatori)
-
-    # Tabella leggibile con CSS migliorato
-    st.dataframe(df_classifica, use_container_width=True)
+    render_classifica(df_classifica)
 
     # ---------------------------------------------------------
     # TOOLBAR (ONE-CLICK)
