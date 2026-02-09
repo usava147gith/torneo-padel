@@ -80,6 +80,11 @@ def add_constraints(model, x, n_turns):
             )
             model.Add(comp[j][i] == comp[i][j])
 
+    # VINCOLO DURO: massimo 1 compagno totale
+    for i in range(N_PLAYERS):
+        for j in range(i + 1, N_PLAYERS):
+            model.Add(comp[i][j] <= 1)
+
     # STESSO GRUPPO
     same_group = {}
     for i in range(N_PLAYERS):
