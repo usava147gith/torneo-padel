@@ -165,10 +165,10 @@ def add_constraints(model, x, n_turns):
 
     # FUNZIONE OBIETTIVO
     model.Minimize(
-          1  * sum(pen1[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
-        + 3  * sum(pen2[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
-        + 10 * sum(pen3[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
-        + 50 * sum(pen4[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+          1   * sum(pen1[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 4   * sum(pen2[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 20  * sum(pen3[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
+        + 200 * sum(pen4[(i, j)] for i in range(N_PLAYERS) for j in range(i + 1, N_PLAYERS))
     )
 
     return pair
