@@ -3,7 +3,13 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
-from .logiche.logica_draft12 import solve_draft12
+def get_solver(num_turni):
+    if num_turni == 8:
+        from .logiche.logica_draft12_8turni import solve_draft12
+    else:
+        from .logiche.logica_draft12_11turni import solve_draft12
+    return solve_draft12
+
 
 
 # ---------------------------------------------------------
@@ -160,7 +166,9 @@ def run():
     # GENERA CALENDARIO
     # ---------------------------------------------------------
     if st.button("Genera calendario draft 12"):
-        st.session_state.draft12_calendario = solve_draft12(giocatori, num_turni)
+        solve = get_solver(num_turni)
+        st.session_state.draft12_calendario = solve(giocatori, num_turni)
+
         st.session_state.draft12_risultati = [""] * len(st.session_state.draft12_calendario)
 
     if "draft12_calendario" not in st.session_state:
@@ -216,9 +224,12 @@ def run():
     # ---------------------------------------------------------
     # CLASSIFICA
     # ---------------------------------------------------------
-    st.subheader("Classifica")
+    st.subheader("🏆 Classifica")
+
     df_classifica = calcola_classifica(df_cal, giocatori)
-    render_classifica(df_classifica)
+
+    # Tabella leggibile con CSS migliorato
+    st.dataframe(df_classifica, use_container_width=True)
 
     # ---------------------------------------------------------
     # TOOLBAR (ONE-CLICK)
