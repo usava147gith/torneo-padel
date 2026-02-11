@@ -122,6 +122,16 @@ if not st.session_state.onboarding_done:
     st.stop()
 
 # ---------------------------------------------------------
+# LOGO NELLA PAGINA PRINCIPALE
+# ---------------------------------------------------------
+st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <img src=".streamlit/public/icons/padel_icon.png" width="50">
+        <h1 style="margin:0;">Tornei Padel</h1>
+    </div>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
 # IMPORT TORNEI
 # ---------------------------------------------------------
 from tornei.torneo_squadre import run as run_torneo_squadre
@@ -139,10 +149,11 @@ st.sidebar.markdown("Seleziona il tipo di torneo")
 scelta = st.sidebar.radio(
     "Seleziona un torneo",
     [
-        "Torneo a squadre (Campionato)",
+        "Torneo a squadre",
         "Draft 12 giocatori",
         "Draft 16 giocatori",
-        "Draft misto 16 giocatori"
+        "Draft misto 16 giocatori",
+        "Campionato a squadre"
     ],
     label_visibility="collapsed"
 )
@@ -155,7 +166,7 @@ st.sidebar.info("V1.0 by UgoSavarese")
 # ---------------------------------------------------------
 
 # CAMPIONATO PARAMETRICO
-if scelta == "Torneo a squadre (Campionato)":
+if scelta == "Campionato a squadre":
 
     formato = st.sidebar.radio(
         "Formato campionato",
@@ -181,6 +192,9 @@ elif scelta == "Draft 16 giocatori":
 
 elif scelta == "Draft misto 16 giocatori":
     run_draft16_misto()
+    
+elif scelta == "Torneo a squadre":
+    run_torneo_squadre()
 
 # ---------------------------------------------------------
 # HOME PAGE
@@ -194,4 +208,3 @@ else:
     """, unsafe_allow_html=True)
 
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
-
