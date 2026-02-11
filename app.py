@@ -5,7 +5,7 @@ import streamlit as st
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Tornei Padel",
-    page_icon="icons/padel_icon.png",
+    page_icon=".streamlit/public/icons/padel_icon.png",
     layout="wide"
 )
 
@@ -194,3 +194,4 @@ else:
     """, unsafe_allow_html=True)
 
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
+
