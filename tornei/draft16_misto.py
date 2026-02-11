@@ -2,6 +2,14 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import json
+
+st.markdown("""
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+        <img src="icons/varcaturopadel.png" width="50">
+        <h1 style="margin:0;">Tornei Padel</h1>
+    </div>
+""", unsafe_allow_html=True)
+
 from io import BytesIO
 from tornei.logiche.logica_draft16_misto import solve_draft16_misto
 

@@ -233,4 +233,3 @@ def run_campionato(num_squadre: int):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key=f"save_xlsx_{num_squadre}"
         )
-
