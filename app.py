@@ -12,11 +12,15 @@ st.set_page_config(
 # ---------------------------------------------------------
 # LOGO CIRCOLO NELLA SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.markdown("""
-    <div style="text-align:center; margin-bottom:20px;">
-        <img src="icons/varcaturopadel.png" width="80">
+st.sidebar.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="/varcaturopadel.png" width="120">
     </div>
-""", unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
+
 
 # ---------------------------------------------------------
 # CSS ESTERNO
@@ -106,7 +110,7 @@ if not st.session_state.onboarding_done:
         box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
     ">
         <div style="margin-bottom: 1rem;">
-            <img src="icons/varcaturopadel.png" width="90">
+            <img src="/varcaturopadel.png" width="90">
         </div>
         <h2 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h2>
         <p style="font-size: 17px; color: #6E6E73;">
@@ -126,7 +130,7 @@ if not st.session_state.onboarding_done:
 # ---------------------------------------------------------
 st.markdown("""
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-        <img src="icons/varcaturopadel.png" width="50">
+        <img src="/varcaturopadel.png" width="50">
         <h1 style="margin:0;">Tornei Padel</h1>
     </div>
 """, unsafe_allow_html=True)
@@ -144,6 +148,16 @@ from tornei.campionato import run_campionato   # <-- NUOVO FILE PARAMETRICO
 # SIDEBAR
 # ---------------------------------------------------------
 st.sidebar.title("🎾 Tornei Padel")
+
+st.sidebar.markdown(
+    """
+    <div style="text-align: center; margin-bottom: 20px;">
+        <img src="/varcaturopadel.png" width="120">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.sidebar.markdown("Seleziona il tipo di torneo")
 
 scelta = st.sidebar.radio(
@@ -202,10 +216,9 @@ elif scelta == "Torneo a squadre":
 else:
     st.markdown("""
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <img src="icons/varcaturopadel.png" width="50">
+            <img src="/varcaturopadel.png" width="50">
             <h1 style="margin:0;">Tornei Padel</h1>
         </div>
     """, unsafe_allow_html=True)
 
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
-
