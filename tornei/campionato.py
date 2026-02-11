@@ -74,6 +74,7 @@ def calcola_classifica(giornate, risultati, squadre):
     punti = {s: 0 for s in squadre}
     set_vinti = {s: 0 for s in squadre}
     set_persi = {s: 0 for s in squadre}
+    partite_giocate = {s: 0 for s in squadre}
 
     idx = 0
     for giornata in giornate:
@@ -86,10 +87,12 @@ def calcola_classifica(giornate, risultati, squadre):
             punti[b] += pb
 
             if ris:
-                try:
-                    sa, sb = map(int, ris.split("-"))
-                except Exception:
-                    sa, sb = 0, 0
+                # conteggio partite giocate
+                partite_giocate[a] += 1
+                partite_giocate[b] += 1
+
+                # conteggio set
+                sa, sb = map(int, ris.split("-"))
                 set_vinti[a] += sa
                 set_persi[a] += sb
                 set_vinti[b] += sb
@@ -98,6 +101,7 @@ def calcola_classifica(giornate, risultati, squadre):
     df = pd.DataFrame({
         "Squadra": squadre,
         "Punti": [punti[s] for s in squadre],
+        "Partite Giocate": [partite_giocate[s] for s in squadre],
         "Set Vinti": [set_vinti[s] for s in squadre],
         "Set Persi": [set_persi[s] for s in squadre],
         "Diff Set": [set_vinti[s] - set_persi[s] for s in squadre],
@@ -105,8 +109,9 @@ def calcola_classifica(giornate, risultati, squadre):
 
     df = df.sort_values(by=["Punti", "Diff Set", "Set Vinti"], ascending=False)
     df.reset_index(drop=True, inplace=True)
-    df.index = df.index + 1  # posizioni da 1
+    df.index = df.index + 1
     return df
+
 
 
 # ---------------------------------------------------------
@@ -115,7 +120,7 @@ def calcola_classifica(giornate, risultati, squadre):
 def run_campionato(num_squadre: int):
     st.markdown(f"""
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <img src="icons/padel_icon.png" width="40">
+            <img src=".streamlit/public/icons/padel_icon.png" width="40">
             <h1 style="margin:0;">Campionato Padel — {num_squadre} squadre</h1>
         </div>
     """, unsafe_allow_html=True)
