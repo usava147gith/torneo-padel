@@ -5,7 +5,11 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY app.py /app/app.py
+COPY styles.css /app/styles.css
+COPY icons /app/icons
+COPY tornei /app/tornei
+COPY .streamlit /app/.streamlit
 
 ENV PORT=10000
 
