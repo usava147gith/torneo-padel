@@ -1,7 +1,7 @@
 import streamlit as st
 
 # ---------------------------------------------------------
-# CONFIGURAZIONE PAGINA
+# CONFIGURAZIONE PAGINA (UNA SOLA!)
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Tornei Padel",
@@ -10,11 +10,23 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# CSS PERSONALIZZATO
+# LOGO CIRCOLO NELLA SIDEBAR
+# ---------------------------------------------------------
+st.sidebar.markdown("""
+    <div style="text-align:center; margin-bottom:20px;">
+        <img src="icons/padel_icon.png" width="80">
+    </div>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# CSS ESTERNO
 # ---------------------------------------------------------
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+# ---------------------------------------------------------
+# CSS INLINE
+# ---------------------------------------------------------
 st.markdown("""
     <style>
     label, .stTextInput label, .stSelectbox label {
@@ -76,7 +88,7 @@ if ('serviceWorker' in navigator) {
 """, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# ONBOARDING INIZIALE (VERSIONE SICURA)
+# ONBOARDING
 # ---------------------------------------------------------
 if "onboarding_done" not in st.session_state:
     st.session_state.onboarding_done = False
@@ -93,7 +105,9 @@ if not st.session_state.onboarding_done:
         margin: 4rem auto;
         box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
     ">
-        <div style="font-size: 64px; margin-bottom: 1rem; color: #34C759;">🎾</div>
+        <div style="margin-bottom: 1rem;">
+            <img src="icons/padel_icon.png" width="90">
+        </div>
         <h2 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h2>
         <p style="font-size: 17px; color: #6E6E73;">
             Organizza tornei, crea squadre e genera partite in modo semplice e veloce.
@@ -108,51 +122,56 @@ if not st.session_state.onboarding_done:
     st.stop()
 
 # ---------------------------------------------------------
-# CSS ESTERNO (styles.css)
-# ---------------------------------------------------------
-with open("styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-
-# ---------------------------------------------------------
-# IMPORT FUNZIONI TORNEI
+# IMPORT TORNEI
 # ---------------------------------------------------------
 from tornei.torneo_squadre import run as run_torneo_squadre
 from tornei.draft12 import run as run_draft12
 from tornei.draft16 import run as run_draft16
 from tornei.draft16_misto import run as run_draft16_misto
-from tornei.campionato16 import run as run_campionato16
+from tornei.campionato import run_campionato   # <-- NUOVO FILE PARAMETRICO
 
 # ---------------------------------------------------------
-# SIDEBAR iOS STYLE
+# SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.title("🎾Tornei Padel")
+st.sidebar.title("🎾 Tornei Padel")
 st.sidebar.markdown("Seleziona il tipo di torneo")
 
 scelta = st.sidebar.radio(
     "Seleziona un torneo",
     [
-        "Torneo a squadre",
+        "Torneo a squadre (Campionato)",
         "Draft 12 giocatori",
         "Draft 16 giocatori",
-        "Draft misto 16 giocatori",
-        "Torneo 16 squadre (Campionato)"
+        "Draft misto 16 giocatori"
     ],
     label_visibility="collapsed"
 )
 
-
-
 st.sidebar.markdown("---")
 st.sidebar.info("V1.0 by UgoSavarese")
 
-
 # ---------------------------------------------------------
-# ROUTING TORNEI
+# ROUTING
 # ---------------------------------------------------------
 
-if scelta == "Torneo a squadre":
-    run_torneo_squadre()
+# CAMPIONATO PARAMETRICO
+if scelta == "Torneo a squadre (Campionato)":
+
+    formato = st.sidebar.radio(
+        "Formato campionato",
+        ["12 squadre", "16 squadre", "20 squadre"]
+    )
+
+    if formato == "12 squadre":
+        run_campionato(num_squadre=12)
+
+    elif formato == "16 squadre":
+        run_campionato(num_squadre=16)
+
+    elif formato == "20 squadre":
+        run_campionato(num_squadre=20)
+
+    st.stop()
 
 elif scelta == "Draft 12 giocatori":
     run_draft12()
@@ -162,53 +181,16 @@ elif scelta == "Draft 16 giocatori":
 
 elif scelta == "Draft misto 16 giocatori":
     run_draft16_misto()
-    
-elif scelta == "Torneo 16 squadre (Campionato)":
-    run_campionato16()
-
 
 # ---------------------------------------------------------
-# HOME PAGE (solo se nessun torneo è selezionato)
+# HOME PAGE
 # ---------------------------------------------------------
 else:
-    st.title("🏆 Generatore Tornei Padel")
+    st.markdown("""
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <img src="icons/padel_icon.png" width="50">
+            <h1 style="margin:0;">Tornei Padel</h1>
+        </div>
+    """, unsafe_allow_html=True)
+
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
-
-    st.markdown("### Seleziona un torneo")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.markdown("""
-        <div class="mobile-card fade-in">
-            <div class="mobile-card-icon">👥</div>
-            <div class="mobile-card-title">Torneo a squadre</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col2:
-        st.markdown("""
-        <div class="mobile-card fade-in">
-            <div class="mobile-card-icon">🔢</div>
-            <div class="mobile-card-title">Draft 12</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    col3, col4 = st.columns(2)
-
-    with col3:
-        st.markdown("""
-        <div class="mobile-card fade-in">
-            <div class="mobile-card-icon">🎯</div>
-            <div class="mobile-card-title">Draft 16</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col4:
-        st.markdown("""
-        <div class="mobile-card fade-in">
-            <div class="mobile-card-icon">♀♂</div>
-            <div class="mobile-card-title">Draft misto</div>
-        </div>
-        """, unsafe_allow_html=True)
-
