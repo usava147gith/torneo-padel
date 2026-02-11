@@ -120,7 +120,7 @@ def calcola_classifica(giornate, risultati, squadre):
 def run_campionato(num_squadre: int):
     st.markdown(f"""
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <img src=".streamlit/public/icons/padel_icon.png" width="40">
+            <img src="icons/varcaturopadel.png" width="40">
             <h1 style="margin:0;">Campionato Padel — {num_squadre} squadre</h1>
         </div>
     """, unsafe_allow_html=True)
@@ -233,3 +233,4 @@ def run_campionato(num_squadre: int):
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key=f"save_xlsx_{num_squadre}"
         )
+
