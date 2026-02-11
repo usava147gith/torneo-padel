@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  tornei-padel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tornei-padel
+    ports:
+      - "10000:10000"
+    volumes:
+      - .:/app
+    environment:
+      - PORT=10000
