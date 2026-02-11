@@ -1,12 +1,6 @@
 import streamlit as st
 import pandas as pd
 
-st.markdown("""
-    <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-        <img src="icons/varcaturopadel.png" width="50">
-        <h1 style="margin:0;">Tornei Padel</h1>
-    </div>
-""", unsafe_allow_html=True)
 
 from io import BytesIO
 from .logiche.logica_torneo_squadre import genera_torneo_squadre

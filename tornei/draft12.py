@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import json
 from io import BytesIO
+
+
 def get_solver(num_turni):
     if num_turni == 8:
         from .logiche.logica_draft12_8turni import solve_draft12
