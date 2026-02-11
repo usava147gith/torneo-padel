@@ -14,7 +14,7 @@ st.set_page_config(
 # ---------------------------------------------------------
 st.sidebar.markdown("""
     <div style="text-align:center; margin-bottom:20px;">
-        <img src="icons/padel_icon.png" width="80">
+        <img src=".streamlit/public/icons/padel_icon.png" width="80">
     </div>
 """, unsafe_allow_html=True)
 
@@ -106,7 +106,7 @@ if not st.session_state.onboarding_done:
         box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
     ">
         <div style="margin-bottom: 1rem;">
-            <img src="icons/padel_icon.png" width="90">
+            <img src=".streamlit/public/icons/padel_icon.png" width="90">
         </div>
         <h2 style="margin-bottom: 0.5rem;">Benvenuto in Tornei Padel</h2>
         <p style="font-size: 17px; color: #6E6E73;">
