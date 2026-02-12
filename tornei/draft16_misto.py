@@ -116,7 +116,7 @@ def calcola_classifica(df_cal, names):
 # UI PRINCIPALE
 # ---------------------------------------------------------
 def run():
-    st.header("Draft 16 Misto — Arancione Dinamico")
+    st.header("### 🏅 Draft 16 Misto 🏅")
 
     # ---------------------------------------------------------
     # CARICAMENTO TORNEO

@@ -121,7 +121,7 @@ def calcola_classifica(df_cal, names):
 # UI PRINCIPALE
 # ---------------------------------------------------------
 def run():
-    st.header("Draft 16 giocatori — Verde Sportivo")
+    st.header("### 🎾 Draft 16 giocatori 🎾")
 
     # ---------------------------------------------------------
     # CARICAMENTO TORNEO
