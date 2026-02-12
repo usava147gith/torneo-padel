@@ -14,6 +14,8 @@ COPY styles.css /app/styles.css
 # Copia delle cartelle necessarie
 COPY tornei /app/tornei
 COPY .streamlit /app/.streamlit
+COPY static /app/static
+
 
 # Variabile PORT gestita da Render
 ENV PORT=$PORT
