@@ -126,7 +126,8 @@ def run():
     # ---------------------------------------------------------
     # CARICAMENTO TORNEO
     # ---------------------------------------------------------
-    uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
+    st.subheader("📂 Carica torneo salvato")
+    uploaded = st.file_uploader("Carica file JSON del torneo", type="json")
     if uploaded:
         data = json.load(uploaded)
         st.session_state.draft16_calendario = pd.DataFrame(data["calendario"])
@@ -266,4 +267,3 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
-

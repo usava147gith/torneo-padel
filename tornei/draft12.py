@@ -128,7 +128,8 @@ def run():
     # ---------------------------------------------------------
     # CARICAMENTO TORNEO
     # ---------------------------------------------------------
-    uploaded = st.file_uploader("📂 Carica torneo salvato", type="json")
+    st.subheader("📂 Carica torneo salvato")
+    uploaded = st.file_uploader("Carica file JSON del torneo", type="json")
     if uploaded:
         data = json.load(uploaded)
         st.session_state.draft12_calendario = pd.DataFrame(data["calendario"])
