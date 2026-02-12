@@ -1,93 +1,155 @@
 import streamlit as st
 import pandas as pd
-
-
 from io import BytesIO
+import json
+
 from .logiche.logica_torneo_squadre import genera_torneo_squadre
 
+
 def run():
-    st.header("🏅 Torneo a squadre")
+    st.markdown("""
+    <div style="display:flex; align-items:center; gap:14px; margin:20px 0;">
+        <span style="font-size:42px;">🎾</span>
+        <h1 style="margin:0; font-weight:700;">Torneo a squadre</h1>
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("Inserisci i nomi delle squadre e dei giocatori.")
+    # ---------------------------------------------------------
+    # CARICAMENTO TORNEO SALVATO
+    # ---------------------------------------------------------
+    st.subheader("📂 Carica torneo salvato")
+    uploaded = st.file_uploader("Carica file JSON del torneo", type="json", key="upload_torneo_squadre")
 
-    # Input squadre
-    squadre = []
-    for i in range(4):
-        squadre.append(st.text_input(f"Nome squadra {i+1}", value=f"Squadra {i+1}"))
+    if uploaded:
+        data = json.load(uploaded)
+        st.session_state["ts_squadre"] = data["squadre"]
+        st.session_state["ts_giocatori"] = data["giocatori"]
+        st.session_state["ts_risultati"] = data["risultati"]
+        st.success("Torneo caricato correttamente!")
 
-    # Input giocatori
-    nomi_giocatori = {}
-    for squadra in squadre:
-        st.subheader(f"👥 Giocatori {squadra}")
+    # ---------------------------------------------------------
+    # INIZIALIZZAZIONE STATO
+    # ---------------------------------------------------------
+    if "ts_squadre" not in st.session_state:
+        st.markdown("Inserisci i nomi delle squadre e dei giocatori.")
 
-        col1, col2 = st.columns(2)
+        # Input squadre
+        squadre = []
+        for i in range(4):
+            squadre.append(st.text_input(f"Nome squadra {i+1}", value=f"Squadra {i+1}", key=f"squadra_{i}"))
 
-        with col1:
-            u1 = st.text_input(f"{squadra} - Uomo 1")
-            u2 = st.text_input(f"{squadra} - Uomo 2")
-            u3 = st.text_input(f"{squadra} - Uomo 3")
+        # Input giocatori
+        nomi_giocatori = {}
+        for squadra in squadre:
+            st.subheader(f"👥 Giocatori {squadra}")
 
-        with col2:
-            d1 = st.text_input(f"{squadra} - Donna 1")
-            d2 = st.text_input(f"{squadra} - Donna 2")
-            d3 = st.text_input(f"{squadra} - Donna 3")
+            col1, col2 = st.columns(2)
 
-        nomi_giocatori[squadra] = [u1, u2, u3, d1, d2, d3]
+            with col1:
+                u1 = st.text_input(f"{squadra} - Uomo 1", key=f"{squadra}_u1")
+                u2 = st.text_input(f"{squadra} - Uomo 2", key=f"{squadra}_u2")
+                u3 = st.text_input(f"{squadra} - Uomo 3", key=f"{squadra}_u3")
 
-    if st.button("🚀 Genera calendario"):
-        risultati = genera_torneo_squadre(nomi_giocatori)
+            with col2:
+                d1 = st.text_input(f"{squadra} - Donna 1", key=f"{squadra}_d1")
+                d2 = st.text_input(f"{squadra} - Donna 2", key=f"{squadra}_d2")
+                d3 = st.text_input(f"{squadra} - Donna 3", key=f"{squadra}_d3")
 
-        df_cal = risultati["calendario"]
-        df_ctrl = risultati["controllo"]
-        df_comp = risultati["compagni"]
-        df_ms = risultati["metriche_squadra"]
-        df_mg = risultati["metriche_giocatore"]
-        df_pct = risultati["percentuali"]
+            nomi_giocatori[squadra] = [u1, u2, u3, d1, d2, d3]
 
-        st.success("🎉 Calendario generato con successo!")
-        st.balloons()
+        if st.button("🚀 Genera calendario"):
+            risultati = genera_torneo_squadre(nomi_giocatori)
 
-        # Tabs
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-            "📅 Calendario",
-            "📊 Controllo giocate",
-            "🤝 Compagni",
-            "🏆 Metriche squadre",
-            "👤 Metriche giocatori",
-            "📈 Percentuali"
-        ])
+            st.session_state["ts_squadre"] = squadre
+            st.session_state["ts_giocatori"] = nomi_giocatori
+            st.session_state["ts_risultati"] = risultati
 
-        with tab1:
-            st.dataframe(df_cal)
+            st.rerun()
 
-        with tab2:
-            st.dataframe(df_ctrl)
+        st.stop()
 
-        with tab3:
-            st.dataframe(df_comp)
+    # ---------------------------------------------------------
+    # SE SIAMO QUI, IL TORNEO È GIÀ GENERATO O RIPRISTINATO
+    # ---------------------------------------------------------
+    squadre = st.session_state["ts_squadre"]
+    giocatori = st.session_state["ts_giocatori"]
+    risultati = st.session_state["ts_risultati"]
 
-        with tab4:
-            st.dataframe(df_ms)
+    df_cal = risultati["calendario"]
+    df_ctrl = risultati["controllo"]
+    df_comp = risultati["compagni"]
+    df_ms = risultati["metriche_squadra"]
+    df_mg = risultati["metriche_giocatore"]
+    df_pct = risultati["percentuali"]
 
-        with tab5:
-            st.dataframe(df_mg)
+    st.success("🎉 Torneo pronto!")
 
-        with tab6:
-            st.dataframe(df_pct)
+    # ---------------------------------------------------------
+    # TABS RISULTATI
+    # ---------------------------------------------------------
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+        "📅 Calendario",
+        "📊 Controllo giocate",
+        "🤝 Compagni",
+        "🏆 Metriche squadre",
+        "👤 Metriche giocatori",
+        "📈 Percentuali"
+    ])
 
-        # Download Excel
-        output = BytesIO()
-        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-            df_cal.to_excel(writer, sheet_name="Calendario", index=False)
-            df_ctrl.to_excel(writer, sheet_name="Controllo", index=False)
-            df_comp.to_excel(writer, sheet_name="Compagni", index=False)
-            df_ms.to_excel(writer, sheet_name="Metriche_squadre", index=False)
-            df_mg.to_excel(writer, sheet_name="Metriche_giocatori", index=False)
-            df_pct.to_excel(writer, sheet_name="Percentuali", index=False)
+    with tab1:
+        st.dataframe(df_cal)
 
-        st.download_button(
-            label="⬇️ Scarica Excel",
-            data=output.getvalue(),
-            file_name="torneo_squadre.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        )
+    with tab2:
+        st.dataframe(df_ctrl)
+
+    with tab3:
+        st.dataframe(df_comp)
+
+    with tab4:
+        st.dataframe(df_ms)
+
+    with tab5:
+        st.dataframe(df_mg)
+
+    with tab6:
+        st.dataframe(df_pct)
+
+    # ---------------------------------------------------------
+    # SALVATAGGIO TORNEO (JSON)
+    # ---------------------------------------------------------
+    st.subheader("💾 Salva torneo")
+
+    data = {
+        "squadre": squadre,
+        "giocatori": giocatori,
+        "risultati": risultati,
+    }
+
+    st.download_button(
+        "⬇️ Salva torneo (JSON)",
+        data=json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8"),
+        file_name="torneo_squadre.json",
+        mime="application/json",
+        key="save_json_torneo_squadre"
+    )
+
+    # ---------------------------------------------------------
+    # ESPORTAZIONE EXCEL
+    # ---------------------------------------------------------
+    st.subheader("📊 Esporta Excel")
+
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+        df_cal.to_excel(writer, sheet_name="Calendario", index=False)
+        df_ctrl.to_excel(writer, sheet_name="Controllo", index=False)
+        df_comp.to_excel(writer, sheet_name="Compagni", index=False)
+        df_ms.to_excel(writer, sheet_name="Metriche_squadre", index=False)
+        df_mg.to_excel(writer, sheet_name="Metriche_giocatori", index=False)
+        df_pct.to_excel(writer, sheet_name="Percentuali", index=False)
+
+    st.download_button(
+        label="⬇️ Scarica Excel",
+        data=output.getvalue(),
+        file_name="torneo_squadre.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
