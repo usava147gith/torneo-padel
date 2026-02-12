@@ -121,7 +121,7 @@ def calcola_classifica(df_cal, names):
 # UI PRINCIPALE
 # ---------------------------------------------------------
 def run():
-    st.header("### 🎾 Draft 16 giocatori 🎾")
+    st.header("🎾 Draft 16 giocatori 🎾")
 
     # ---------------------------------------------------------
     # CARICAMENTO TORNEO
@@ -266,3 +266,4 @@ def run():
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key="download_excel",
         )
+
