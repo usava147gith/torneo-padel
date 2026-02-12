@@ -5,7 +5,7 @@ import streamlit as st
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="Tornei Padel",
-    page_icon="static/varcaturopadel.png",
+    page_icon="static/torneipadel192.png",
     layout="wide"
 )
 
@@ -183,3 +183,4 @@ elif scelta == "Torneo a squadre":
 
 else:
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
+
