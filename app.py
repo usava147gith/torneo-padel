@@ -15,7 +15,6 @@ st.markdown("""
 # ---------------------------------------------------------
 # LOGO SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.info("Apri il menu in alto a sinistra per navigare")
 st.sidebar.image("static/varcaturopadel.png", width=True)
 st.sidebar.title("🎾 Tornei Padel")
 
@@ -137,7 +136,6 @@ from tornei.campionato import run_campionato
 # ---------------------------------------------------------
 # SIDEBAR MENU
 # ---------------------------------------------------------
-st.sidebar.info("Apri il menu in alto a sinistra per navigare")
 st.sidebar.markdown("Seleziona il tipo di torneo")
 scelta = st.sidebar.radio(
     "Seleziona un torneo",
@@ -152,7 +150,7 @@ scelta = st.sidebar.radio(
 )
 
 st.sidebar.markdown("---")
-st.sidebar.info("V1.0 by UgoSavarese")
+st.sidebar.info("V1.0 by Ugo Savarese")
 
 # ---------------------------------------------------------
 # ROUTING
@@ -187,3 +185,4 @@ elif scelta == "Torneo a squadre":
 
 else:
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
+
