@@ -8,6 +8,9 @@ st.set_page_config(
     page_icon="static/torneipadel192.png",
     layout="wide"
 )
+st.markdown("""
+<meta name="viewport" content="width=device-width, initial-scale=1">
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # LOGO SIDEBAR
@@ -133,8 +136,8 @@ from tornei.campionato import run_campionato
 # ---------------------------------------------------------
 # SIDEBAR MENU
 # ---------------------------------------------------------
+st.sidebar.info("Apri il menu in alto a sinistra per navigare")
 st.sidebar.markdown("Seleziona il tipo di torneo")
-
 scelta = st.sidebar.radio(
     "Seleziona un torneo",
     [
@@ -183,4 +186,3 @@ elif scelta == "Torneo a squadre":
 
 else:
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
-
