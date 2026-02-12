@@ -118,12 +118,7 @@ def calcola_classifica(giornate, risultati, squadre):
 # UI PRINCIPALE CAMPIONATO
 # ---------------------------------------------------------
 def run_campionato(num_squadre: int):
-    st.markdown(f"""
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-            <img src="icons/varcaturopadel.png" width="40">
-            <h1 style="margin:0;">Campionato Padel — {num_squadre} squadre</h1>
-        </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<h1>🏆 Campionato Padel — {num_squadre} squadre</h1>", unsafe_allow_html=True)
 
     # ---------------- CARICAMENTO TORNEO SALVATO ----------------
     st.subheader("📂 Carica campionato salvato")
