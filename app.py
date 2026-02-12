@@ -15,7 +15,8 @@ st.markdown("""
 # ---------------------------------------------------------
 # LOGO SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.image("static/varcaturopadel.png", width=120)
+st.sidebar.info("Apri il menu in alto a sinistra per navigare")
+st.sidebar.image("static/varcaturopadel.png", width=True)
 st.sidebar.title("🎾 Tornei Padel")
 
 # ---------------------------------------------------------
