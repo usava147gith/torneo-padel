@@ -47,7 +47,7 @@ st.markdown("""
 # ---------------------------------------------------------
 # LOGO SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.image("static/varcaturopadel.png", width=120)
+st.sidebar.image("static/varcaturopadel.png", width=90)
 st.sidebar.title("🎾 Tornei Padel")
 
 # ---------------------------------------------------------
@@ -217,3 +217,4 @@ elif scelta == "Torneo a squadre":
 
 else:
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
+
