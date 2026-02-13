@@ -7,10 +7,15 @@ from .logiche.logica_torneo_squadre import genera_torneo_squadre
 
 
 def run():
-    st.markdown("""
+    # ---------------------------------------------------------
+    # TITOLO CON NOME TORNEO
+    # ---------------------------------------------------------
+    nome = st.session_state.get("ts_nome", "Torneo a squadre")
+
+    st.markdown(f"""
     <div style="display:flex; align-items:center; gap:14px; margin:20px 0;">
         <span style="font-size:42px;">🎾</span>
-        <h1 style="margin:0; font-weight:700;">Torneo a squadre</h1>
+        <h1 style="margin:0; font-weight:700;">{nome}</h1>
     </div>
     """, unsafe_allow_html=True)
 
@@ -22,16 +27,21 @@ def run():
 
     if uploaded:
         data = json.load(uploaded)
+        st.session_state["ts_nome"] = data.get("nome_torneo", "Torneo a squadre")
         st.session_state["ts_squadre"] = data["squadre"]
         st.session_state["ts_giocatori"] = data["giocatori"]
         st.session_state["ts_risultati"] = data["risultati"]
         st.success("Torneo caricato correttamente!")
 
     # ---------------------------------------------------------
-    # INIZIALIZZAZIONE STATO
+    # INIZIALIZZAZIONE TORNEO
     # ---------------------------------------------------------
     if "ts_squadre" not in st.session_state:
-        st.markdown("Inserisci i nomi delle squadre e dei giocatori.")
+
+        st.subheader("🏷️ Nome del torneo")
+        nome_torneo = st.text_input("Inserisci il nome del torneo", value="Torneo a squadre")
+
+        st.markdown("### Inserisci i nomi delle squadre e dei giocatori.")
 
         # Input squadre
         squadre = []
@@ -60,6 +70,7 @@ def run():
         if st.button("🚀 Genera calendario"):
             risultati = genera_torneo_squadre(nomi_giocatori)
 
+            st.session_state["ts_nome"] = nome_torneo
             st.session_state["ts_squadre"] = squadre
             st.session_state["ts_giocatori"] = nomi_giocatori
             st.session_state["ts_risultati"] = risultati
@@ -69,8 +80,9 @@ def run():
         st.stop()
 
     # ---------------------------------------------------------
-    # SE SIAMO QUI, IL TORNEO È GIÀ GENERATO O RIPRISTINATO
+    # TORNEO GIÀ GENERATO O RIPRISTINATO
     # ---------------------------------------------------------
+    nome = st.session_state["ts_nome"]
     squadre = st.session_state["ts_squadre"]
     giocatori = st.session_state["ts_giocatori"]
     risultati = st.session_state["ts_risultati"]
@@ -115,11 +127,12 @@ def run():
         st.dataframe(df_pct)
 
     # ---------------------------------------------------------
-    # SALVATAGGIO TORNEO (JSON)
+    # SALVATAGGIO TORNEO
     # ---------------------------------------------------------
     st.subheader("💾 Salva torneo")
 
     data = {
+        "nome_torneo": nome,
         "squadre": squadre,
         "giocatori": giocatori,
         "risultati": risultati,
@@ -130,7 +143,6 @@ def run():
         data=json.dumps(data, ensure_ascii=False, indent=2).encode("utf-8"),
         file_name="torneo_squadre.json",
         mime="application/json",
-        key="save_json_torneo_squadre"
     )
 
     # ---------------------------------------------------------
@@ -143,8 +155,8 @@ def run():
         df_cal.to_excel(writer, sheet_name="Calendario", index=False)
         df_ctrl.to_excel(writer, sheet_name="Controllo", index=False)
         df_comp.to_excel(writer, sheet_name="Compagni", index=False)
-        df_ms.to_excel(writer, sheet_name="Metriche_squadre", index=False)
-        df_mg.to_excel(writer, sheet_name="Metriche_giocatori", index=False)
+        df_ms.to_excel(writer, sheet_name="Metriche_squadra", index=False)
+        df_mg.to_excel(writer, sheet_name="Metriche_giocatore", index=False)
         df_pct.to_excel(writer, sheet_name="Percentuali", index=False)
 
     st.download_button(

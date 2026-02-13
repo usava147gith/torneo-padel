@@ -7,16 +7,10 @@ from io import BytesIO
 # GENERAZIONE CALENDARIO ROUND ROBIN (METODO CIRCLE)
 # ---------------------------------------------------------
 def genera_calendario(squadre):
-    """
-    Metodo circle per numero pari di squadre.
-    Restituisce: lista di giornate, ogni giornata = lista di (squadraA, squadraB)
-    """
     n = len(squadre)
     assert n % 2 == 0, "Il numero di squadre deve essere pari"
 
-    # Copia lista
     lista = squadre.copy()
-    # Se n è pari, nessun bye necessario
     fissa = lista[0]
     rotanti = lista[1:]
 
@@ -32,7 +26,6 @@ def genera_calendario(squadre):
         for a, b in zip(left, right):
             giornata.append((a, b))
 
-        # Rotazione
         rotanti = rotanti[1:] + rotanti[:1]
         giornate.append(giornata)
 
@@ -43,10 +36,6 @@ def genera_calendario(squadre):
 # PUNTEGGIO
 # ---------------------------------------------------------
 def punti_da_risultato(ris):
-    """
-    ris: stringa tipo "2-0", "2-1", "1-2", "0-2" oppure "" (vuoto)
-    Ritorna: (punti_squadraA, punti_squadraB)
-    """
     if not ris:
         return (0, 0)
 
@@ -87,11 +76,9 @@ def calcola_classifica(giornate, risultati, squadre):
             punti[b] += pb
 
             if ris:
-                # conteggio partite giocate
                 partite_giocate[a] += 1
                 partite_giocate[b] += 1
 
-                # conteggio set
                 sa, sb = map(int, ris.split("-"))
                 set_vinti[a] += sa
                 set_persi[a] += sb
@@ -113,35 +100,53 @@ def calcola_classifica(giornate, risultati, squadre):
     return df
 
 
-
 # ---------------------------------------------------------
 # UI PRINCIPALE CAMPIONATO
 # ---------------------------------------------------------
 def run_campionato(num_squadre: int):
-    st.markdown(f"<h1>🏆 Campionato Padel — {num_squadre} squadre</h1>", unsafe_allow_html=True)
 
-    # ---------------- CARICAMENTO TORNEO SALVATO ----------------
+    # ---------------------------------------------------------
+    # TITOLO CON NOME CAMPIONATO
+    # ---------------------------------------------------------
+    nome = st.session_state.get(f"camp_nome_{num_squadre}", f"Campionato Padel — {num_squadre} squadre")
+
+    st.markdown(f"""
+    <div style="display:flex; align-items:center; gap:14px; margin:20px 0;">
+        <span style="font-size:42px;">🏆</span>
+        <h1 style="margin:0; font-weight:700;">{nome}</h1>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---------------------------------------------------------
+    # CARICAMENTO CAMPIONATO SALVATO
+    # ---------------------------------------------------------
     st.subheader("📂 Carica campionato salvato")
     uploaded = st.file_uploader("Carica file JSON del campionato", type="json", key=f"upload_{num_squadre}")
+
     if uploaded:
         data = json.load(uploaded)
+        st.session_state[f"camp_nome_{num_squadre}"] = data.get("nome_campionato", nome)
         st.session_state[f"c_squadre_{num_squadre}"] = data["squadre"]
         st.session_state[f"c_giornate_{num_squadre}"] = data["giornate"]
         st.session_state[f"c_risultati_{num_squadre}"] = data["risultati"]
         st.success("Campionato caricato correttamente!")
 
-    # ---------------- INIZIALIZZAZIONE STATO ----------------
+    # ---------------------------------------------------------
+    # INIZIALIZZAZIONE
+    # ---------------------------------------------------------
     key_squadre = f"c_squadre_{num_squadre}"
     key_giornate = f"c_giornate_{num_squadre}"
     key_risultati = f"c_risultati_{num_squadre}"
+    key_nome = f"camp_nome_{num_squadre}"
 
     if key_squadre not in st.session_state:
-        # Genero nomi di default: S1, S2, ...
+
+        st.subheader("🏷️ Nome del campionato")
+        nome_camp = st.text_input("Inserisci il nome del campionato", value=nome)
+
         squadre_default = [f"S{i+1}" for i in range(num_squadre)]
 
         st.subheader("📋 Nomi squadre")
-        st.markdown("Modifica i nomi se vuoi, altrimenti usa quelli di default.")
-
         squadre = []
         col1, col2 = st.columns(2)
         half = num_squadre // 2
@@ -149,11 +154,13 @@ def run_campionato(num_squadre: int):
         with col1:
             for i in range(half):
                 squadre.append(st.text_input(f"Squadra {i+1}", squadre_default[i], key=f"sx_{num_squadre}_{i}"))
+
         with col2:
             for i in range(half, num_squadre):
                 squadre.append(st.text_input(f"Squadra {i+1}", squadre_default[i], key=f"dx_{num_squadre}_{i}"))
 
         if st.button("✅ Conferma squadre e genera calendario", key=f"conf_squadre_{num_squadre}"):
+            st.session_state[key_nome] = nome_camp
             st.session_state[key_squadre] = squadre
             st.session_state[key_giornate] = genera_calendario(squadre)
             num_partite = sum(len(g) for g in st.session_state[key_giornate])
@@ -162,12 +169,14 @@ def run_campionato(num_squadre: int):
 
         st.stop()
 
-    # Se siamo qui, il campionato è già inizializzato
+    # ---------------------------------------------------------
+    # CAMPIONATO GIÀ GENERATO
+    # ---------------------------------------------------------
+    nome = st.session_state[key_nome]
     squadre = st.session_state[key_squadre]
     giornate = st.session_state[key_giornate]
     risultati = st.session_state[key_risultati]
 
-    # ---------------- RISULTATI GIORNATE ----------------
     st.subheader("📅 Risultati delle giornate")
 
     idx = 0
@@ -187,12 +196,16 @@ def run_campionato(num_squadre: int):
 
     st.session_state[key_risultati] = risultati
 
-    # ---------------- CLASSIFICA ----------------
+    # ---------------------------------------------------------
+    # CLASSIFICA
+    # ---------------------------------------------------------
     st.subheader("🏅 Classifica")
     df_classifica = calcola_classifica(giornate, risultati, squadre)
     st.dataframe(df_classifica, use_container_width=True)
 
-    # ---------------- AZIONI ----------------
+    # ---------------------------------------------------------
+    # AZIONI
+    # ---------------------------------------------------------
     st.subheader("⚙️ Azioni campionato")
     colA, colB, colC = st.columns(3)
 
@@ -201,10 +214,12 @@ def run_campionato(num_squadre: int):
             del st.session_state[key_squadre]
             del st.session_state[key_giornate]
             del st.session_state[key_risultati]
+            del st.session_state[key_nome]
             st.rerun()
 
     with colB:
         data = {
+            "nome_campionato": nome,
             "squadre": squadre,
             "giornate": giornate,
             "risultati": risultati,
