@@ -10,13 +10,14 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------
-# SCRITTA MENU ACCANTO ALL’ICONA SIDEBAR
+# SCRITTA "MENU" ACCANTO ALL’ICONA DELLA SIDEBAR
+# (versione compatibile con Streamlit 1.30+)
 # ---------------------------------------------------------
 st.markdown("""
 <style>
 
 /* Scritta MENU accanto al pulsante della sidebar */
-button[title="Toggle sidebar"]::after {
+div[data-testid="collapsedControl"] > button::after {
     content: " Menu";
     font-size: 16px;
     font-weight: 600;
@@ -25,7 +26,7 @@ button[title="Toggle sidebar"]::after {
 }
 
 /* Allineamento */
-button[title="Toggle sidebar"] {
+div[data-testid="collapsedControl"] > button {
     display: flex;
     align-items: center;
 }
@@ -40,11 +41,10 @@ st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1">
 """, unsafe_allow_html=True)
 
-
 # ---------------------------------------------------------
 # LOGO SIDEBAR
 # ---------------------------------------------------------
-st.sidebar.image("static/varcaturopadel.png", width=True)
+st.sidebar.image("static/varcaturopadel.png", width=120)
 st.sidebar.title("🎾 Tornei Padel")
 
 # ---------------------------------------------------------
