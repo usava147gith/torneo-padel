@@ -9,6 +9,19 @@ st.set_page_config(
     layout="wide"
 )
 st.markdown("""
+<style>
+/* Aggiunge la scritta MENU vicino all’icona della sidebar */
+[data-testid="collapsedControl"]::after {
+    content: " Menu";
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 6px;
+    color: #444;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1">
 """, unsafe_allow_html=True)
 
@@ -185,4 +198,3 @@ elif scelta == "Torneo a squadre":
 
 else:
     st.markdown("Benvenuto! Scegli il tipo di torneo dalla barra laterale.")
-
