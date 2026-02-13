@@ -8,22 +8,38 @@ st.set_page_config(
     page_icon="static/torneipadel192.png",
     layout="wide"
 )
+
+# ---------------------------------------------------------
+# SCRITTA MENU ACCANTO ALL’ICONA SIDEBAR
+# ---------------------------------------------------------
 st.markdown("""
 <style>
-/* Aggiunge la scritta MENU vicino all’icona della sidebar */
-[data-testid="collapsedControl"]::after {
+
+/* Scritta MENU accanto al pulsante della sidebar */
+button[title="Toggle sidebar"]::after {
     content: " Menu";
     font-size: 16px;
     font-weight: 600;
     margin-left: 6px;
     color: #444;
 }
+
+/* Allineamento */
+button[title="Toggle sidebar"] {
+    display: flex;
+    align-items: center;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
+# ---------------------------------------------------------
+# VIEWPORT MOBILE
+# ---------------------------------------------------------
 st.markdown("""
 <meta name="viewport" content="width=device-width, initial-scale=1">
 """, unsafe_allow_html=True)
+
 
 # ---------------------------------------------------------
 # LOGO SIDEBAR
