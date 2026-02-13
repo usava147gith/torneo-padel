@@ -17,16 +17,19 @@ st.markdown("""
 <style>
 
 /* Scritta MENU accanto al pulsante della sidebar */
-div[data-testid="collapsedControl"] > button::after {
+[data-testid="collapsedControl"] button svg {
+    margin-right: 6px;
+}
+
+[data-testid="collapsedControl"] button::after {
     content: " Menu";
     font-size: 16px;
     font-weight: 600;
-    margin-left: 6px;
     color: #444;
 }
 
 /* Allineamento */
-div[data-testid="collapsedControl"] > button {
+[data-testid="collapsedControl"] button {
     display: flex;
     align-items: center;
 }
